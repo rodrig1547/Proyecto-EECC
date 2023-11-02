@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Define la codificación de caracteres del documento como UTF-8, que admite caracteres especiales y emojis. -->
+    <meta charset="UTF-8">
+    <!-- Se utiliza para definir la compatibilidad con Internet Explorer -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--Establece la escala inicial y el ancho de la ventana gráfica para dispositivos móviles y navegadores.-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+    <h1 class="text-center mt-5 mb-5 text-primary">EECC</h1>
+
+    <div class="container">
+        <div class="card shadow">
+            <div class="card-body">
+                <form action="/user" method="POST">                    
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label>Dia</label>
+                            <input type="text" class="form-control mb-3" name="dia">
+                        </div>                        
+                        <div class="col">
+                            <label>Viaje/OT</label>
+                            <input type="text" class="form-control mb-3" name="viaje_ot">
+                        </div>
+                        <div class="col">
+                            <label>Cliente</label>
+                            <select class="form-control mb-3" name="cliente">
+                                <option selected>-----</option>
+                                <option value="BHP">BHP</option>
+                                <option value="AMSA">AMSA</option>
+                            </select>                            
+                        </div>
+                        <div class="col">
+                            <label>Lugar</label>
+                            <select class="form-control mb-3" name="lugar">
+                                <option selected>-----</option>
+                                <option value="IQQ">IQQ</option>
+                                <option value="POZ">POZ</option>
+                                <option value="SCL">SCL</option>
+                                <option value="MCC">MCC</option>
+                            </select>                            
+                        </div>
+                        <div class="col">
+                            <label>Tipo Extra Costo</label>
+                            <select class="form-control mb-3" name="tipo_extra_costo">
+                                <option selected>-----</option>
+                                <option value="AJUSTE TARIFA ADICIONAL POR TRAMO">AJUSTE TARIFA ADICIONAL POR TRAMO</option>
+                                <option value="CUADRATURA ARRIENDO FIJO">CUADRATURA ARRIENDO FIJO</option>
+                            </select>
+            
+                        </div>
+                        <div class="col">
+                            <label>Motivo</label>
+                            <input type="text" class="form-control mb-3" name="motivo">
+                        </div>
+                        <div class="col">
+                            <label>Hora Llegada</label>
+                            <input type="text" class="form-control mb-3" name="hora_llegada">
+                        </div>
+                        <div class="col">
+                            <label>Dia2</label>
+                            <input type="text" class="form-control mb-3" name="dia2">
+                        </div>
+                             
+                        
+                    </div>
+                    <div class="row mb-3">                        
+                        <div class="col">
+                            <label>Hora de Salida</label>
+                            <input type="text" class="form-control mb-3" name="hora_salida">
+                        </div>
+                        <div class="col">
+                            <label>Dia3</label>
+                            <input type="text" class="form-control mb-3" name="dia3">
+                        </div>
+                        <div class="col">
+                            <label>Total Horas</label>
+                            <input type="text" class="form-control mb-3" name="total_horas">
+                        </div>
+                        <div class="col">
+                            <label>Empresa</label>
+                            <input type="text" class="form-control mb-3" name="empresa">
+                        </div>
+                        <div class="col">
+                            <label>Responsable</label>
+                            <select class="form-control mb-3" name="responsable">
+                                <option selected>-----</option>
+                                <option value="cliente">Cliente</option>
+                                <option value="mintral">Mintral</option>     
+                            </select>                    
+                        </div>
+                        <div class="col">
+                            <label>Monto</label>
+                            <input type="text" class="form-control mb-3" name="monto">
+                        </div>
+                        <div class="col">
+                            <label>Estado</label>
+                            <input type="text" class="form-control mb-3" name="estado">
+                        </div>
+                        <div class="col">
+                            <label>Responsable Evaluacion</label>
+                            <input type="text" class="form-control mb-3" name="responsable_evaluacion">
+                        </div>                        
+                        <div class="col">
+                            <button class="btn btn-primary mb-3 mt-4" type="submit">Guardar</button>
+                        </div>
+                    </div>
+
+
+
+                </form>
+
+
+                <!-- Tabla -->
+            <div style="overflow-x: auto;">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">id</th>
+                            <th scope="col">Dia</th>                            
+                            <th scope="col">Viaje/OT</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Lugar</th>
+                            <th scope="col">Tipo_Extra_Costo</th>
+                            <th scope="col">Motivo</th>
+                            <th scope="col">Hora Llegada</th>
+                            <th scope="col">Dia</th>
+                            <th scope="col">Hora de Salida</th>
+                            <th scope="col">Dia</th>
+                            <th scope="col">Total Horas</th>
+                            <th scope="col">Empresa</th>
+                            <th scope="col">Responsable</th>
+                            <th scope="col">Monto</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Responsable Evaluacion</th>
+                            <th scope="col">Usuario</th>
+                            <th scope="col">Edit</th>
+                            <th scope="col">Delete</th>
+                        </tr>
+                    </thead>
+            </div>
+            
+                <tbody>
+                    {% for d in data %}
+                        <tr>
+                            <td>{{d.id}}</td>
+                            <td>{{d.dia}}</td>
+                            <td>{{d.viaje_ot}}</td>
+                            <td>{{d.cliente}}</td>
+                            <td>{{d.lugar}}</td>
+                            <td>{{d.tipo_extra_costo}}</td>
+                            <td>{{d.motivo}}</td>
+                            <td>{{d.hora_llegada}}</td>
+                            <td>{{d.dia2}}</td>
+                            <td>{{d.hora_salida}}</td>
+                            <td>{{d.dia3}}</td>
+                            <td>{{d.total_horas}}</td>
+                            <td>{{d.empresa}}</td>
+                            <td>{{d.responsable}}</td>
+                            <td>{{d.monto}}</td>
+                            <td>{{d.estado}}</td>
+                            <td>{{d.responsable_evaluacion}}</td>
+                            <td>{{d.usuario}}</td>                            
+                            <td><button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button></td>
+                            <td><a href="{{ url_for('delete', id=d.id) }}" class="btn btn-danger btn-sm">Delete</a></td>
+
+                        </tr>
+
+                        <!-- modal -->
+
+                        <div class="modal fade" id="modal{{d.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5" id="exampleModalLabel">{{d.username}}</h1>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="/edit/{{d.id}}" method="post">
+                                        <label>id</label>
+                                        <input type="text" class="form-control mb-3" name="id" value="{{d.id}}">
+                                        <label>Dia</label>
+                                        <input type="text" class="form-control mb-3" name="dia" value="{{d.dia}}">
+                                        <label>Viaje/OT</label>
+                                        <input type="text" class="form-control mb-3" name="viaje_ot" value="{{d.viaje_ot}}">
+                                        <label>Cliente</label>    
+                                        <select class="form-control mb-3" name="cliente">
+                                            <option selected>-----</option>
+                                            <option value="BHP" {% if d.cliente == 'BHP' %} selected {% endif %}>BHP</option>
+                                            <option value="AMSA" {% if d.cliente == 'AMSA' %} selected {% endif %}>AMSA</option>                                
+                                        </select>                                                                                
+                                        <label>Lugar</label>    
+                                        <select class="form-control mb-3" name="lugar">
+                                            <option selected>-----</option>
+                                            <option value="IQQ" {% if d.lugar == 'IQQ' %} selected {% endif %}>IQQ</option>
+                                            <option value="POZ" {% if d.lugar == 'POZ' %} selected {% endif %}>POZ</option>
+                                            <option value="SCL" {% if d.lugar == 'SCL' %} selected {% endif %}>SCL</option>
+                                            <option value="MCC" {% if d.lugar == 'MCC' %} selected {% endif %}>MCC</option>
+                                        </select>
+                                        <label>Tipo Extra Costo</label>         
+                                        <select class="form-control mb-3" name="tipo_extra_costo">
+                                            <option selected>-----</option>
+                                            <option value="AJUSTE TARIFA ADICIONAL POR TRAMO" {% if d.tipo_extra_costo == 'AJUSTE TARIFA ADICIONAL POR TRAMO' %} selected {% endif %}>AJUSTE TARIFA ADICIONAL POR TRAMO</option>
+                                            <option value="CUADRATURA ARRIENDO FIJO" {% if d.tipo_extra_costo == 'CUADRATURA ARRIENDO FIJO' %} selected {% endif %}>CUADRATURA ARRIENDO FIJO</option>
+                                            </select>    
+                                        <label>Motivo</label>
+                                        <input type="text" class="form-control mb-3" name="motivo" value="{{d.motivo}}">
+                                        <label>Hora Llegada</label>
+                                        <input type="text" class="form-control mb-3" name="hora_llevada" value="{{d.hora_llegada}}">
+                                        <label>Dia</label>
+                                        <input type="text" class="form-control mb-3" name="dia2" value="{{d.dia2}}">
+                                        <label>Hora de Salida</label>
+                                        <input type="text" class="form-control mb-3" name="hora_salida" value="{{d.hora_salida}}">
+                                        <label>Dia</label>
+                                        <input type="text" class="form-control mb-3" name="dia3" value="{{d.dia3}}">
+                                        <label>Total Horas</label>
+                                        <input type="text" class="form-control mb-3" name="total_horas" value="{{d.total_horas}}">    
+                                        <label>Empresa</label>
+                                        <input type="text" class="form-control mb-3" name="empresa" value="{{d.empresa}}">    
+                                        <label>Responsable</label>         
+                                        <select class="form-control mb-3" name="responsable">
+                                            <option selected>-----</option>
+                                            <option value="cliente" {% if d.responsable == 'cliente' %} selected {% endif %}>Cliente</option>
+                                            <option value="mintral" {% if d.responsable == 'mintral' %} selected {% endif %}>Mintral</option>
+                                            </select>     
+                                        <label>Monto</label>
+                                        <input type="text" class="form-control mb-3" name="monto" value="{{d.monto}}">   
+                                        <label>Estado</label>
+                                        <input type="text" class="form-control mb-3" name="estado" value="{{d.estado}}"> 
+                                        <label>Responsable Evalucion</label>
+                                        <input type="text" class="form-control mb-3" name="responsable_evaluacion" value="{{d.responsable_evaluacion}}">  
+                                        
+                                                       
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+
+
+
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>
