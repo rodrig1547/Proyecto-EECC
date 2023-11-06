@@ -6,7 +6,7 @@ from controller.controllerCarro import *
 app = Flask(__name__)
 
 #Rutas de la aplicación
-@app.route('/')
+@app.route('/home')
 def home():
     return render_template('index.html', data= mostrarRegistros())
 
