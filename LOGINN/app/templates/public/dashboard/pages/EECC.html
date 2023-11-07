@@ -32,11 +32,13 @@
                                 <option value="BHP">BHP</option>
                                 <option value="AMSA">AMSA</option>
                                 <option value="Glencore">Glencore</option>
+                                <option value="CMDIC">CMDIC</option>
+                                <option value="Otras Mineras">Otras Mineras</option>
                             </select>                            
                         </div>
 
                         <div class="col">
-                            <label>Lugar</label>
+                            <label>Agencia</label>
                             <select class="form-control mb-3" name="lugar">
                                 <option selected>-----</option>
                                 <option value="IQQ">IQQ</option>
@@ -50,8 +52,20 @@
                             <label>Tipo Extra Costo</label>
                             <select class="form-control mb-3" name="tipo_extra_costo">
                                 <option selected>-----</option>
-                                <option value="AJUSTE TARIFA ADICIONAL POR TRAMO">AJUSTE TARIFA ADICIONAL POR TRAMO</option>
-                                <option value="CUADRATURA ARRIENDO FIJO">CUADRATURA ARRIENDO FIJO</option>
+                                <option value="AJUSTE TARIFA ADICIONAL POR TRAMO">AJUSTE TARIFA ADICIONAL POR TRAMO</option>                                
+                                <option value="AJUSTE TARIFA DESCUENTO POR TRAMO">AJUSTE TARIFA DESCUENTO POR TRAMO</option>                                                                
+                                <option value="URGENCIA DOBLE CONDUCTOR">URGENCIA DOBLE CONDUCTOR</option>                                
+                                <option value="DIFERENCIA TARIFA EL LIBERTADOR">DIFERENCIA TARIFA EL LIBERTADOR</option>                                
+                                <option value="MOVIMIENTO INTERNO FAENA">MOVIMIENTO INTERNO FAENA</option>                                
+                                <option value="REDESTINACION CLIENTE">REDESTINACION CLIENTE</option>                                
+                                <option value="REDESTINACION SITRANS">REDESTINACION SITRANS</option>                                
+                                <option value="ESTADIA EN BODEGA DE CLIENTE">ESTADIA EN BODEGA DE CLIENTE</option>                      
+                                <option value="FALSO FLETE CLIENTE">FALSO FLETE CLIENTE</option>
+                                <option value="FALSO FLETE OPERACIONAL SITRANS">FALSO FLETE OPERACIONAL SITRANS</option>
+                                <option value="POSICIONAMIENTO VACIO CLIENTE">POSICIONAMIENTO VACIO CLIENTE</option>
+                                <option value="POSICIONAMIENTO VACIO SITRANS">POSICIONAMIENTO VACIO SITRANS</option>
+                                <option value="SIDER">SIDER</option>
+                                <option value="SERVICIO SOBREDIMENSION">SERVICIO SOBREDIMENSION</option>                                
                             </select>            
                         </div>
 
@@ -66,7 +80,7 @@
                         </div>
 
                         <div class="col">
-                            <label>Dia2</label>
+                            <label>Dia</label>
                             <input type="text" class="form-control mb-3" name="dia2">
                         </div>                           
                     </div>
@@ -78,7 +92,7 @@
                         </div>
 
                         <div class="col">
-                            <label>Dia3</label>
+                            <label>Dia</label>
                             <input type="text" class="form-control mb-3" name="dia3">
                         </div>
 
@@ -96,8 +110,8 @@
                             <label>Responsable</label>
                             <select class="form-control mb-3" name="responsable">
                                 <option selected>-----</option>
-                                <option value="cliente">Cliente</option>
-                                <option value="mintral">Mintral</option>     
+                                <option value="Cliente">Cliente</option>
+                                <option value="Mintral">Mintral</option>     
                             </select>                    
                         </div>
 
@@ -105,15 +119,21 @@
                             <label>Monto</label>
                             <input type="text" class="form-control mb-3" name="monto">
                         </div>
-
+                        <!--Estado depende del perfil de usuario--> 
                         <div class="col">
                             <label>Estado</label>
-                            <input type="text" class="form-control mb-3" name="estado">
-                        </div>
+                            <select class="form-control mb-3" name="estado">
 
-                        <div class="col">
-                            <label>Responsable Evaluacion</label>
-                            <input type="text" class="form-control mb-3" name="responsable_evaluacion">
+                                {% if(dataLogin.tipoLogin== 1 or dataLogin.tipoLogin== 2) %} 
+                                <option value="Ingreso AD. Contrato">Ingreso AD. Contrato</option>                 
+                                <option value="Aprobado">Aprobado</option>
+                                <option value="Rechazado">Rechazado</option>
+                                {% endif %}
+
+                                {% if(dataLogin.tipoLogin== 3) %}
+                                <option value="Ingreso CAT">Ingreso CAT</option>
+                                {% endif %}
+                            </select>
                         </div>    
 
                         <div class="col">

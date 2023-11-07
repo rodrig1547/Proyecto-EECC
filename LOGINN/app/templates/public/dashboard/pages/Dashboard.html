@@ -4,18 +4,13 @@
       <h1 class="text-center">Hola Equipo, sientanse todos Bienvenidos  😃 👍 <hr></h1>
       {% if(dataLogin.tipoLogin ==1) %}
           <p class="text-center">Hola Soy <strong> {{ dataLogin.nombre }},</strong> Creador del Proyecto.😅 </p>
-        {% else %}
-          <p class="text-center">Hola mi nombre es <strong>{{ dataLogin.nombre }},</strong> soy un usuario. </p>
-      {% endif %}
+          {% endif %}
+      {% if(dataLogin.tipoLogin ==2) %}
+          <p class="text-center">Hola <strong>{{ dataLogin.nombre }}, Administrador de Contratos</strong>. </p>
+          {% endif %}
+      {% if(dataLogin.tipoLogin == 3) %}
+      <p class="text-center">Hola <strong>{{ dataLogin.nombre }}, CAT</strong>. </p>
+          {% endif %}
     </div>
-
-    <!--Tarjeta 1-->
-    
-
-    <!--Tarjeta 2-->
-    
-
-    <!--Tarjeta 3-->
    
-
   </div>

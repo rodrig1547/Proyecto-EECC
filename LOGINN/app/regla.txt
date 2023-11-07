@@ -1,3 +1,5 @@
 1 = Desarrollo
 2 = Administrador Contratos
 3 = Cat
+
+Los Administradores de Contratos pueden Ingresar Extracostos??? Actualmente si puede

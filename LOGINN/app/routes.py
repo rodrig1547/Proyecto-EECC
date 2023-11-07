@@ -48,15 +48,14 @@ def editProfile():
 @app.route('/EECC', methods = ['GET','POST'])
 
 def EECC():
-    if 'conectado' in session and dataLoginSesion()["tipoLogin"] == 3:
-        return render_template('public/dashboard/pages/EECC_Login3.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarRegistros())
-    else: 
+    if 'conectado' in session:
         return render_template('public/dashboard/pages/EECC.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarRegistros())
-
+    return redirect(url_for('inicio'))
 
 #Ruta para agregar/guardar registros a EECC
 @app.route('/user', methods=['POST'])
 def addUser():
+    # Si el Perfil Corresponde a CAT
     if dataLoginSesion()["tipoLogin"] == 3: 
         data = {}
         for field in ['dia', 'viaje_ot', 'cliente', 'lugar', 'tipo_extra_costo', 'motivo',
@@ -73,14 +72,16 @@ def addUser():
         addUserbd(columns, placeholders, values)
 
         return redirect(url_for('EECC'))
-    
+    #Si el Perfil Corresponde a un administrador de contratos o Desarrollador
     else: 
         data = {}
         for field in ['dia', 'viaje_ot', 'cliente', 'lugar', 'tipo_extra_costo', 'motivo',
                     'hora_llegada', 'dia2', 'hora_salida', 'dia3', 'total_horas', 'empresa', 
-                    'responsable','monto','estado','responsable_evaluacion']:
+                    'responsable','monto','estado']:
             data[field] = request.form.get(field)
-            data['usuario'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido'] 
+            data['usuario'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido']
+             
+             
     
         columns = ', '.join([f'`{column}`' for column in data.keys()])
         placeholders = ', '.join(['%s'] * len(data))
@@ -89,14 +90,35 @@ def addUser():
 
         return redirect(url_for('EECC'))
     
-#Ruta para eliminar Registros
+#Ruta para ELIMINAR Registros
 @app.route('/delete/<string:id>/<string:estado>')
-def delete(id, estado): 
-    data = (id,)
-    deleterow(data)
-    print ('-----------------------------')
-    return redirect(url_for('EECC'))
-   
+def delete(id, estado):
+    if estado == 'Ingreso CAT' and dataLoginSesion()['tipoLogin'] ==3:
+        data = (id,)
+        deleterow(data)
+        return redirect(url_for('EECC'))
+    if dataLoginSesion()['tipoLogin'] !=3:
+        data = (id,)
+        deleterow(data)
+        return redirect(url_for('EECC'))
+    else:
+        return redirect(url_for('EECC'))
+    
+#Ruta para EDITAR Registros de EECC
+@app.route('/edit/<string:id>/<string:estado>', methods=['POST'])
+def edit(id,estado):
+    if estado == 'Ingreso CAT' and dataLoginSesion()['tipoLogin'] ==3:
+    data = {}
+    for field in ['dia', 'viaje_ot', 'cliente', 'lugar', 'tipo_extra_costo', 'motivo',
+               'hora_llegada', 'dia2', 'hora_salida', 'dia3', 'total_horas', 'empresa', 'responsable', 
+               'monto', 'estado', 'responsable_evaluacion','usuario']:
+        data[field] = request.form.get(field)    
+    data['id'] = id
+    values = list(data.values())
+    editRow(values)
+    return redirect(url_for('EECC'))    
+
+
 
 # Cerrar session del usuario
 @app.route('/logout')
