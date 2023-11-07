@@ -36,7 +36,7 @@ def editRow(values):
     cursor = conexion_MySQLdb.cursor()
     sql = "UPDATE eecc SET dia = %s, viaje_ot= %s, cliente = %s, lugar = %s, tipo_extra_costo = %s, motivo = %s,\
                hora_llegada = %s, dia2 = %s, hora_salida = %s, dia3 = %s, total_horas = %s, empresa = %s, responsable = %s, \
-               monto = %s, estado = %s, responsable_evaluacion = %s, usuario = %s WHERE id = %s"
+               monto = %s, estado = %s, responsable_evaluacion = %s  WHERE id = %s"
     cursor.execute(sql, values)
     conexion_MySQLdb.commit()
     cursor.close()

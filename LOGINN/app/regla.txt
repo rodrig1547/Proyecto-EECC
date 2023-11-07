@@ -2,4 +2,11 @@
 2 = Administrador Contratos
 3 = Cat
 
-Los Administradores de Contratos pueden Ingresar Extracostos??? Actualmente si puede
+Los Administradores de Contratos pueden Ingresar Extracostos???
+Los Administradores de Contratos pueden Ingresar EDITAR Extracostos??? 
+
+
+
+rodrigo.godoy@usach.cl eloyo1994 CAT
+
+rodrigo.godoy1@usach.cl

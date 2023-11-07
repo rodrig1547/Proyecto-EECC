@@ -80,7 +80,11 @@ def addUser():
                     'responsable','monto','estado']:
             data[field] = request.form.get(field)
             data['usuario'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido']
-             
+        if  data['estado'] == 'Aprobado' or data['estado'] == 'Rechazado':
+            data['responsable_evaluacion'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido']
+        else: 
+            data['responsable_evaluacion'] = ''
+                    
              
     
         columns = ', '.join([f'`{column}`' for column in data.keys()])
@@ -105,15 +109,20 @@ def delete(id, estado):
         return redirect(url_for('EECC'))
     
 #Ruta para EDITAR Registros de EECC
-@app.route('/edit/<string:id>/<string:estado>', methods=['POST'])
-def edit(id,estado):
-    if estado == 'Ingreso CAT' and dataLoginSesion()['tipoLogin'] ==3:
+@app.route('/edit/<string:id>', methods=['POST'])
+def edit(id):
     data = {}
     for field in ['dia', 'viaje_ot', 'cliente', 'lugar', 'tipo_extra_costo', 'motivo',
                'hora_llegada', 'dia2', 'hora_salida', 'dia3', 'total_horas', 'empresa', 'responsable', 
-               'monto', 'estado', 'responsable_evaluacion','usuario']:
+               'monto', 'estado', 'responsable_evaluacion']:
         data[field] = request.form.get(field)    
     data['id'] = id
+    
+    print ()
+    if  request.form.get('estado') == 'Aprobado' or request.form.get('estado') == 'Rechazado':
+        data['responsable_evaluacion'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido']
+    else: 
+        data['responsable_evaluacion'] = ''
     values = list(data.values())
     editRow(values)
     return redirect(url_for('EECC'))    
