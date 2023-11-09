@@ -36,10 +36,10 @@ def loginUser():
                     session['nombre']           = account['nombre']
                     session['apellido']         = account['apellido']
                     session['email']            = account['email']
-                    session['sexo']             = account['sexo']
+                    session['perfil_usuario']             = account['perfil_usuario']
                     session['pais']             = account['pais']
                     session['create_at']        = account['create_at']
-                    session['te_gusta_la_programacion']     = account['te_gusta_la_programacion']
+                    session['sexo']     = account['sexo']
 
                     msg = "Ha iniciado sesión correctamente."
                     return render_template('public/dashboard/home.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion())                    
@@ -64,8 +64,8 @@ def registerUser():
         email                       = request.form['email']
         password                    = request.form['password']
         repite_password             = request.form['repite_password']
-        sexo                        = request.form['sexo']
-        te_gusta_la_programacion    = request.form['te_gusta_la_programacion']
+        perfil_usuario                        = request.form['perfil_usuario']
+        sexo    = request.form['sexo']
         pais                        = request.form['pais']
         create_at                   = date.today()
         #current_time = datetime.datetime.now()
@@ -89,7 +89,7 @@ def registerUser():
             password_encriptada = generate_password_hash(password, method='pbkdf2:sha256')
             conexion_MySQLdb = connectionBD()
             cursor = conexion_MySQLdb.cursor(dictionary=True)
-            cursor.execute('INSERT INTO login_python (tipo_user, nombre, apellido, email, password, sexo, pais, create_at, te_gusta_la_programacion) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)', (tipo_user, nombre, apellido, email, password_encriptada, sexo, pais, create_at, te_gusta_la_programacion))
+            cursor.execute('INSERT INTO login_python (tipo_user, nombre, apellido, email, password, perfil_usuario, pais, create_at, sexo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)', (tipo_user, nombre, apellido, email, password_encriptada, perfil_usuario, pais, create_at, sexo))
             conexion_MySQLdb.commit()
             cursor.close()
             msg = 'Cuenta creada correctamente!'
@@ -108,7 +108,7 @@ def actualizarMiPerfil(id):
             nombre        = request.form['nombre']
             apellido      = request.form['apellido']
             email         = request.form['email']
-            sexo          = request.form['sexo']
+            perfil_usuario          = request.form['perfil_usuario']
             pais          = request.form['pais']
 
             if(request.form['password']):
@@ -128,10 +128,10 @@ def actualizarMiPerfil(id):
                             nombre = %s, 
                             apellido = %s, 
                             email = %s, 
-                            sexo = %s, 
+                            perfil_usuario = %s, 
                             pais = %s, 
                             password = %s
-                        WHERE id = %s""", (nombre, apellido, email, sexo, pais, nueva_password, id))
+                        WHERE id = %s""", (nombre, apellido, email, perfil_usuario, pais, nueva_password, id))
                     conexion_MySQLdb.commit()
                     cur.close() #Cerrando conexion SQL
                     conexion_MySQLdb.close() #cerrando conexion de la BD
@@ -147,9 +147,9 @@ def actualizarMiPerfil(id):
                         nombre = %s, 
                         apellido = %s, 
                         email = %s, 
-                        sexo = %s, 
+                        perfil_usuario = %s, 
                         pais = %s
-                    WHERE id = %s""", (nombre, apellido, email, sexo, pais, id))
+                    WHERE id = %s""", (nombre, apellido, email, perfil_usuario, pais, id))
                 conexion_MySQLdb.commit()
                 cur.close()
                 return render_template('public/dashboard/home.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion())

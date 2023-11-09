@@ -37,18 +37,12 @@ def login():
         return render_template('public/modulo_login/index.html', dataPaises = listaPaises())
 
 
-#Ruta para editar el perfil del cliente
-@app.route('/edit-profile', methods=['GET', 'POST'])
-def editProfile():
-    if 'conectado' in session:
-        return render_template('public/dashboard/pages/Profile.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), dataPaises = listaPaises())
-    return redirect(url_for('inicio'))
-
 #Ruta para observar los EECC.
 @app.route('/EECC', methods = ['GET','POST'])
-
 def EECC():
     if 'conectado' in session:
+        print (dataLoginSesion())
+        print (mostrarRegistros())
         return render_template('public/dashboard/pages/EECC.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarRegistros())
     return redirect(url_for('inicio'))
 

@@ -14,10 +14,10 @@ def dataLoginSesion():
         "nombre"              :session['nombre'],
         "apellido"            :session['apellido'],
         "emailLogin"          :session['email'],
-        "sexo"                :session['sexo'],
+        "perfil_usuario"                :session['perfil_usuario'],
         "pais"                      :session['pais'],
         "create_at"                 :session['create_at'],
-        "te_gusta_la_programacion"  :session['te_gusta_la_programacion']
+        "sexo"  :session['sexo']
     }
     return inforLogin
 

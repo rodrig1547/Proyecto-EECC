@@ -128,13 +128,13 @@
                             <label>Estado</label>
                             <select class="form-control mb-3" name="estado">
 
-                                {% if(dataLogin.tipoLogin!= 100) %} 
+                                {% if(dataLogin.tipoLogin== 1 or dataLogin.tipoLogin== 2) %} 
                                 <option value="Ingreso AD. Contrato">Ingreso AD. Contrato</option>                 
                                 <option value="Aprobado">Aprobado</option>
                                 <option value="Rechazado">Rechazado</option>
                                 {% endif %}
 
-                                {% if(dataLogin.tipoLogin== 100) %}
+                                {% if(dataLogin.tipoLogin== 3) %}
                                 <option value="Ingreso CAT">Ingreso CAT</option>
                                 {% endif %}
                             </select>
@@ -202,44 +202,41 @@
                             <td>{{d.responsable_evaluacion}}</td>     
                             <!--Logica Para habilitar o desabilitar el boton de edicion dependiendo el perfil-->                                          
                             <td>
-                                {% if dataLogin.tipoLogin == 2 and d.cliente == "AMSA" %}
+                                {% if dataLogin.tipoLogin != 2 and d.lugar == "AMSA" %}
                                 <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
-                                
-                                {% elif dataLogin.tipoLogin == 3  and d.cliente == "BHP"%}
-                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
-                                {% elif dataLogin.tipoLogin == 4  and d.cliente == "CMDIC"%}
-                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
-                                {% elif dataLogin.tipoLogin == 5  and d.cliente == "Glencore"%}
-                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
-                                {% elif dataLogin.tipoLogin == 6  and d.cliente == "Otras Mineras"%}
-                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>                                
-                                {% elif dataLogin.tipoLogin == 100  and d.estado != 'Aprobado' and d.estado != 'Rechazado' and d.estado != 'Ingreso AD. Contrato' %}
-                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
-                                <!-- Mostrar un mensaje o desactivar el botón de edición si no cumple con los criterios -->
-
+                                <span class="text-muted">No permitido</span>
                                 {% else %}
+                                <!-- Mostrar un mensaje o desactivar el botón de edición si no cumple con los criterios -->
                                 <span class="text-muted">No permitido</span>
                                 {% endif %}
 
-                                <!--Logica Para habilitar o desabilitar el boton de delete dependiendo el perfil-->
+                                {% if dataLogin.tipoLogin != 3 and d.lugar == "BHP" %}
+                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
+                                <span class="text-muted">No permitido</span>
+                                {% else %}
+                                <!-- Mostrar un mensaje o desactivar el botón de edición si no cumple con los criterios -->
+                                <span class="text-muted">No permitido</span>
+                                {% endif %}
+
+                                {% if dataLogin.tipoLogin != 4 and d.lugar == "CMDIC" %}
+                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
+                                <span class="text-muted">No permitido</span>
+                                {% else %}
+                                <!-- Mostrar un mensaje o desactivar el botón de edición si no cumple con los criterios -->
+                                <span class="text-muted">No permitido</span>
+                                {% endif %}
+                        
+                        
+                            <!--Logica Para habilitar o desabilitar el boton de delete dependiendo el perfil-->
                             <td>
-                                {% if dataLogin.tipoLogin == 3 and d.cliente == "BHP" %}
-                                <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
-                                {% elif dataLogin.tipoLogin == 2 and d.cliente == "AMSA" %}
-                                <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
-                                {% elif dataLogin.tipoLogin == 4 and d.cliente == "CMDIC" %}
-                                <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
-                                {% elif dataLogin.tipoLogin == 5 and d.cliente == "Glencore" %}
-                                <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
-                                {% elif dataLogin.tipoLogin == 6 and d.cliente == "Otras Mineras" %}
-                                <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
-                                {% elif dataLogin.tipoLogin == 100 and d.estado != 'Aprobado' and d.estado != 'Rechazado' and d.estado != 'Ingreso AD. Contrato' %}
+                                {% if dataLogin.tipoLogin != 3 or (d.estado != 'Aprobado' and d.estado != 'Rechazado' and d.estado != 'Ingreso AD. Contrato') %}
                                 <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
                                 {% else %}
-                                <!-- Mostrar un mensaje o desactivar el botón de Delete si no cumple con los criterios -->
+                                <!-- Mostrar un mensaje o desactivar el botón de edición si no cumple con los criterios -->
                                 <span class="text-muted">No permitido</span>
                                 {% endif %}
                             
+
                         </tr>
 
                         <!-- modal -->
@@ -330,13 +327,14 @@
 
                                         <label>Estado</label>
                                         <select class="form-control mb-3" name="estado">                                                  
-                                            {% if dataLogin.tipoLogin!= 100 %} 
+                                            {% if(dataLogin.tipoLogin== 1 or dataLogin.tipoLogin== 2) %} 
                                             <option value="Ingreso AD. Contrato" {% if d.estado == 'Ingreso AD. Contrato' %} selected {% endif %}>Ingreso AD. Contrato</option>                 
                                             <option value="Aprobado" {% if d.estado == 'Aprobado' %} selected {% endif %}>Aprobado</option>
                                             <option value="Rechazado" {% if d.estado == 'Rechazado' %} selected {% endif %}>Rechazado</option>
                                             <option value="Ingreso CAT" {% if d.estado == 'Ingreso CAT' %} selected {% endif %}>Ingreso CAT</option>
-                                            
-                                            {% elif (dataLogin.tipoLogin== 100) %}
+                                            {% endif %}
+
+                                            {% if(dataLogin.tipoLogin== 3) %}
                                             <option value="Ingreso CAT" {% if d.responsable == 'Ingreso CAT' %} selected {% endif %}>Ingreso CAT</option>
                                             {% endif %}                 
                                         </select>
