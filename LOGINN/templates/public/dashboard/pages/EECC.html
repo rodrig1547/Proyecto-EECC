@@ -24,10 +24,10 @@
                             <label>Viaje/OT</label>
                             <input type="text" class="form-control mb-3" name="viaje_ot">
                         </div>
-
+                        {% if dataLogin.tipoLogin== 100 %}
                         <div class="col">
                             <label>Cliente</label>
-                            <select class="form-control mb-3" name="cliente">
+                            <select class="form-control mb-3" name="cliente">                                                          
                                 <option selected>-----</option>
                                 <option value="AMSA">AMSA</option>
                                 <option value="BHP">BHP</option>      
@@ -35,8 +35,10 @@
                                 <option value="Glencore">Glencore</option>
                                 <option value="Glencore">Otras Mineras</option>                             
                                 
-                            </select>                            
+                            </select>                           
                         </div>
+                        {% endif %}
+                    
 
                         <div class="col">
                             <label>Agencia</label>
@@ -202,42 +204,30 @@
                             <td>{{d.responsable_evaluacion}}</td>     
                             <!--Logica Para habilitar o desabilitar el boton de edicion dependiendo el perfil-->                                          
                             <td>
-                                {% if dataLogin.tipoLogin == 2 and d.cliente == "AMSA" %}
-                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
-                                
-                                {% elif dataLogin.tipoLogin == 3  and d.cliente == "BHP"%}
-                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
-                                {% elif dataLogin.tipoLogin == 4  and d.cliente == "CMDIC"%}
-                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
-                                {% elif dataLogin.tipoLogin == 5  and d.cliente == "Glencore"%}
-                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
-                                {% elif dataLogin.tipoLogin == 6  and d.cliente == "Otras Mineras"%}
-                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>                                
-                                {% elif dataLogin.tipoLogin == 100  and d.estado != 'Aprobado' and d.estado != 'Rechazado' and d.estado != 'Ingreso AD. Contrato' %}
-                                <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
-                                <!-- Mostrar un mensaje o desactivar el botón de edición si no cumple con los criterios -->
-
+                                {% set can_edit = (dataLogin.tipoLogin == 2 and d.cliente == "AMSA") or
+                                                (dataLogin.tipoLogin == 3 and d.cliente == "BHP") or
+                                                (dataLogin.tipoLogin == 4 and d.cliente == "CMDIC") or
+                                                (dataLogin.tipoLogin == 5 and d.cliente == "Glencore") or
+                                                (dataLogin.tipoLogin == 6 and d.cliente == "Otras Mineras") or
+                                                (dataLogin.tipoLogin == 100 and d.estado not in ['Aprobado', 'Rechazado', 'Ingreso AD. Contrato']) %}
+                                {% if can_edit %}
+                                    <button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Edit</button>
                                 {% else %}
-                                <span class="text-muted">No permitido</span>
+                                    <span class="text-muted">No permitido</span>
                                 {% endif %}
 
                                 <!--Logica Para habilitar o desabilitar el boton de delete dependiendo el perfil-->
                             <td>
-                                {% if dataLogin.tipoLogin == 3 and d.cliente == "BHP" %}
-                                <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
-                                {% elif dataLogin.tipoLogin == 2 and d.cliente == "AMSA" %}
-                                <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
-                                {% elif dataLogin.tipoLogin == 4 and d.cliente == "CMDIC" %}
-                                <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
-                                {% elif dataLogin.tipoLogin == 5 and d.cliente == "Glencore" %}
-                                <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
-                                {% elif dataLogin.tipoLogin == 6 and d.cliente == "Otras Mineras" %}
-                                <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
-                                {% elif dataLogin.tipoLogin == 100 and d.estado != 'Aprobado' and d.estado != 'Rechazado' and d.estado != 'Ingreso AD. Contrato' %}
-                                <a href="{{ url_for('delete', id=d.id, estado = d.estado)}}" class="btn btn-danger btn-sm">Delete</a></td>
+                                {% set can_delete = (dataLogin.tipoLogin == 3 and d.cliente == "BHP") or
+                                              (dataLogin.tipoLogin == 2 and d.cliente == "AMSA") or
+                                              (dataLogin.tipoLogin == 4 and d.cliente == "CMDIC") or
+                                              (dataLogin.tipoLogin == 5 and d.cliente == "Glencore") or
+                                              (dataLogin.tipoLogin == 6 and d.cliente == "Otras Mineras") or
+                                              (dataLogin.tipoLogin == 100 and d.estado not in ['Aprobado', 'Rechazado', 'Ingreso AD. Contrato']) %}
+                                {% if can_delete %}
+                                    <a href="{{ url_for('delete', id=d.id, estado=d.estado) }}" class="btn btn-danger btn-sm">Delete</a>
                                 {% else %}
-                                <!-- Mostrar un mensaje o desactivar el botón de Delete si no cumple con los criterios -->
-                                <span class="text-muted">No permitido</span>
+                                    <span class="text-muted">No permitido</span>
                                 {% endif %}
                             
                         </tr>
@@ -255,63 +245,47 @@
                                     <form action="/edit/{{d.id}}" method="post">
                                         
                                         <label>Dia</label>
-                                        <input type="text" class="form-control mb-3" name="dia" value="{{d.dia}}">
+                                        <input type="text" class="form-control mb-3" name="dia" value="{{d.dia}}" pattern="\d{2}-\d{2}-\d{4}" title="Ingrese una fecha válida en formato dd-mm-yyyy">
 
                                         <label>Viaje/OT</label>
                                         <input type="text" class="form-control mb-3" name="viaje_ot" value="{{d.viaje_ot}}">
-
-                                        <label>Cliente</label>    
-                                        <select class="form-control mb-3" name="cliente">
-                                            <option selected>-----</option>
-                                            <option value="BHP" {% if d.cliente == 'BHP' %} selected {% endif %}>BHP</option>
-                                            <option value="AMSA" {% if d.cliente == 'AMSA' %} selected {% endif %}>AMSA</option>
-                                            <option value="Glencore" {% if d.cliente == 'Glencore' %} selected {% endif %}>Glencore</option>
-                                            <option value="CMDIC" {% if d.cliente == 'CMDIC' %} selected {% endif %}>CMDIC</option>
-                                            <option value="Otras Mineras" {% if d.cliente == 'Otras Mineras' %} selected {% endif %}>Otras Mineras</option>                                
-                                        </select>                           
+                    
+                                                                  
 
                                         <label>Agencia</label>    
                                         <select class="form-control mb-3" name="lugar">
                                             <option selected>-----</option>
-                                            <option value="IQQ" {% if d.lugar == 'IQQ' %} selected {% endif %}>IQQ</option>
-                                            <option value="POZ" {% if d.lugar == 'POZ' %} selected {% endif %}>POZ</option>
-                                            <option value="SCL" {% if d.lugar == 'SCL' %} selected {% endif %}>SCL</option>
-                                            <option value="MCC" {% if d.lugar == 'MCC' %} selected {% endif %}>MCC</option>
+                                            {% for lugar in ['IQQ', 'POZ', 'SCL', 'MCC'] %}
+                                                <option value="{{ lugar }}" {% if d.lugar == lugar %} selected {% endif %}>{{ lugar }}</option>
+                                            {% endfor %}
                                         </select>
 
-                                        <label>Tipo Extra Costo</label>         
+
+                                        <label>Tipo Extra Costo</label>
                                         <select class="form-control mb-3" name="tipo_extra_costo">
                                             <option selected>-----</option>
-                                            <option value="AJUSTE TARIFA ADICIONAL POR TRAMO" {% if d.tipo_extra_costo == 'AJUSTE TARIFA ADICIONAL POR TRAMO' %} selected {% endif %}>AJUSTE TARIFA ADICIONAL POR TRAMO</option>                                                                                           
-                                            <option value="AJUSTE TARIFA DESCUENTO POR TRAMO" {% if d.tipo_extra_costo == 'AJUSTE TARIFA DESCUENTO POR TRAMO' %} selected {% endif %}>AJUSTE TARIFA DESCUENTO POR TRAMO</option>                                                                
-                                            <option value="URGENCIA DOBLE CONDUCTOR" {% if d.tipo_extra_costo == 'URGENCIA DOBLE CONDUCTOR' %} selected {% endif %}>URGENCIA DOBLE CONDUCTOR</option>                                
-                                            <option value="DIFERENCIA TARIFA EL LIBERTADOR" {% if d.tipo_extra_costo == 'DIFERENCIA TARIFA EL LIBERTADOR' %} selected {% endif %}>DIFERENCIA TARIFA EL LIBERTADOR</option>                                
-                                            <option value="MOVIMIENTO INTERNO FAENA" {% if d.tipo_extra_costo == 'MOVIMIENTO INTERNO FAENA' %} selected {% endif %}>MOVIMIENTO INTERNO FAENA</option>                                
-                                            <option value="REDESTINACION CLIENTE" {% if d.tipo_extra_costo == 'REDESTINACION CLIENTE' %} selected {% endif %}>REDESTINACION CLIENTE</option>                                
-                                            <option value="REDESTINACION SITRANS" {% if d.tipo_extra_costo == 'REDESTINACION SITRANS' %} selected {% endif %}>REDESTINACION SITRANS</option>                                
-                                            <option value="ESTADIA EN BODEGA DE CLIENTE" {% if d.tipo_extra_costo == 'ESTADIA EN BODEGA DE CLIENTE' %} selected {% endif %}>ESTADIA EN BODEGA DE CLIENTE</option>                      
-                                            <option value="FALSO FLETE CLIENTE" {% if d.tipo_extra_costo == 'FALSO FLETE CLIENTE' %} selected {% endif %}>FALSO FLETE CLIENTE</option>
-                                            <option value="FALSO FLETE OPERACIONAL SITRANS" {% if d.tipo_extra_costo == 'FALSO FLETE OPERACIONAL SITRANS' %} selected {% endif %}>FALSO FLETE OPERACIONAL SITRANS</option>
-                                            <option value="POSICIONAMIENTO VACIO CLIENTE" {% if d.tipo_extra_costo == 'POSICIONAMIENTO VACIO CLIENTE' %} selected {% endif %}>POSICIONAMIENTO VACIO CLIENTE</option>
-                                            <option value="POSICIONAMIENTO VACIO SITRANS" {% if d.tipo_extra_costo == 'POSICIONAMIENTO VACIO SITRANS' %} selected {% endif %}>POSICIONAMIENTO VACIO SITRANS</option>
-                                            <option value="SIDER" {% if d.tipo_extra_costo == 'SIDER' %} selected {% endif %}>SIDER</option>
-                                            <option value="SERVICIO SOBREDIMENSION" {% if d.tipo_extra_costo == 'SERVICIO SOBREDIMENSION' %} selected {% endif %}>SERVICIO SOBREDIMENSION</option>
-                                            </select>    
+                                            {% for tipo in ['AJUSTE TARIFA ADICIONAL POR TRAMO', 'AJUSTE TARIFA DESCUENTO POR TRAMO', 
+                                            'URGENCIA DOBLE CONDUCTOR', 'DIFERENCIA TARIFA EL LIBERTADOR', 'MOVIMIENTO INTERNO FAENA', 
+                                            'REDESTINACION CLIENTE', 'REDESTINACION SITRANS', 'ESTADIA EN BODEGA DE CLIENTE', 'FALSO FLETE CLIENTE', 
+                                            'FALSO FLETE OPERACIONAL SITRANS', 'POSICIONAMIENTO VACIO CLIENTE', 'POSICIONAMIENTO VACIO SITRANS', 'SIDER', 'SERVICIO SOBREDIMENSION'] %}
+                                                <option value="{{ tipo }}" {% if d.tipo_extra_costo == tipo %} selected {% endif %}>{{ tipo }}</option>
+                                            {% endfor %}
+                                        </select>                                        
 
                                         <label>Motivo</label>
                                         <input type="text" class="form-control mb-3" name="motivo" value="{{d.motivo}}">
                                         
                                         <label>Hora Llegada</label>
-                                        <input type="text" class="form-control mb-3" name="hora_llevada" value="{{d.hora_llegada}}">
+                                        <input type="text" class="form-control mb-3" name="hora_llevada" value="{{d.hora_llegada}}" pattern="^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$" title="Por favor, ingrese una hora válida en formato hh:mm:ss">
 
                                         <label>Dia</label>
-                                        <input type="text" class="form-control mb-3" name="dia2" value="{{d.dia2}}">
+                                        <input type="text" class="form-control mb-3" name="dia2" value="{{d.dia2}}" pattern="\d{2}-\d{2}-\d{4}" title="Ingrese una fecha válida en formato dd-mm-yyyy">
 
                                         <label>Hora de Salida</label>
-                                        <input type="text" class="form-control mb-3" name="hora_salida" value="{{d.hora_salida}}">
+                                        <input type="text" class="form-control mb-3" name="hora_salida" value="{{d.hora_salida}}" pattern="^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$" title="Por favor, ingrese una hora válida en formato hh:mm:ss">
 
                                         <label>Dia</label>
-                                        <input type="text" class="form-control mb-3" name="dia3" value="{{d.dia3}}">
+                                        <input type="text" class="form-control mb-3" name="dia3" value="{{d.dia3}}" pattern="\d{2}-\d{2}-\d{4}" title="Ingrese una fecha válida en formato dd-mm-yyyy">
 
                                         <label>Total Horas</label>
                                         <input type="text" class="form-control mb-3" name="total_horas" value="{{d.total_horas}}">   
@@ -319,27 +293,29 @@
                                         <label>Empresa</label>
                                         <input type="text" class="form-control mb-3" name="empresa" value="{{d.empresa}}">    
 
-                                        <label>Responsable</label>         
+                                        <label>Responsable</label>
                                         <select class="form-control mb-3" name="responsable">
                                             <option selected>-----</option>
-                                            <option value="Cliente" {% if d.responsable == 'Cliente' %} selected {% endif %}>Cliente</option>
-                                            <option value="Mintral" {% if d.responsable == 'Mintral' %} selected {% endif %}>Mintral</option>
-                                            </select>     
+                                            {% for resp in ['Cliente', 'Mintral'] %}
+                                                <option value="{{ resp }}" {% if d.responsable == resp %} selected {% endif %}>{{ resp }}</option>
+                                            {% endfor %}
+                                        </select>
+
+
                                         <label>Monto</label>
                                         <input type="text" class="form-control mb-3" name="monto" value="{{d.monto}}">  
 
                                         <label>Estado</label>
                                         <select class="form-control mb-3" name="estado">                                                  
-                                            {% if dataLogin.tipoLogin!= 100 %} 
-                                            <option value="Ingreso AD. Contrato" {% if d.estado == 'Ingreso AD. Contrato' %} selected {% endif %}>Ingreso AD. Contrato</option>                 
-                                            <option value="Aprobado" {% if d.estado == 'Aprobado' %} selected {% endif %}>Aprobado</option>
-                                            <option value="Rechazado" {% if d.estado == 'Rechazado' %} selected {% endif %}>Rechazado</option>
-                                            <option value="Ingreso CAT" {% if d.estado == 'Ingreso CAT' %} selected {% endif %}>Ingreso CAT</option>
-                                            
-                                            {% elif (dataLogin.tipoLogin== 100) %}
-                                            <option value="Ingreso CAT" {% if d.responsable == 'Ingreso CAT' %} selected {% endif %}>Ingreso CAT</option>
+                                            {% if dataLogin.tipoLogin != 100 %} 
+                                                {% for estado in ['Ingreso AD. Contrato', 'Aprobado', 'Rechazado', 'Ingreso CAT'] %}
+                                                    <option value="{{ estado }}" {% if d.estado == estado %} selected {% endif %}>{{ estado }}</option>
+                                                {% endfor %}
+                                            {% elif dataLogin.tipoLogin == 100 %}
+                                                <option value="Ingreso CAT" {% if d.estado == 'Ingreso CAT' %} selected {% endif %}>Ingreso CAT</option>
                                             {% endif %}                 
                                         </select>
+
 
                                                        
                                 </div>
@@ -350,9 +326,6 @@
                               </div>
                             </div>
                           </div>
-
-
-
 
                     {% endfor %}
 

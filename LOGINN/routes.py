@@ -41,16 +41,17 @@ def login():
 @app.route('/EECC', methods = ['GET','POST'])
 def EECC():
     if 'conectado' in session:
-        print (dataLoginSesion())
-        print (mostrarRegistros())
         return render_template('public/dashboard/pages/EECC.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarRegistros())
     return redirect(url_for('inicio'))
+
+    
+    
 
 #Ruta para agregar/guardar registros a EECC
 @app.route('/user', methods=['POST'])
 def addUser():
     # Si el Perfil Corresponde a CAT
-    if dataLoginSesion()["tipoLogin"] == 3: 
+    if dataLoginSesion()["tipoLogin"] == 100:
         data = {}
         for field in ['dia', 'viaje_ot', 'cliente', 'lugar', 'tipo_extra_costo', 'motivo',
                     'hora_llegada', 'dia2', 'hora_salida', 'dia3', 'total_horas', 'empresa', 
@@ -74,6 +75,7 @@ def addUser():
                     'responsable','monto','estado']:
             data[field] = request.form.get(field)
             data['usuario'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido']
+            data['cliente'] = dataLoginSesion()['perfil_usuario'][13:]
         if  data['estado'] == 'Aprobado' or data['estado'] == 'Rechazado':
             data['responsable_evaluacion'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido']
         else: 
@@ -91,22 +93,21 @@ def addUser():
 #Ruta para ELIMINAR Registros
 @app.route('/delete/<string:id>/<string:estado>')
 def delete(id, estado):
-    if estado == 'Ingreso CAT' and dataLoginSesion()['tipoLogin'] ==3:
+    if estado == 'Ingreso CAT' and dataLoginSesion()['tipoLogin'] ==100:
         data = (id,)
         deleterow(data)
         return redirect(url_for('EECC'))
-    if dataLoginSesion()['tipoLogin'] !=3:
+    else: 
         data = (id,)
         deleterow(data)
         return redirect(url_for('EECC'))
-    else:
-        return redirect(url_for('EECC'))
+    
     
 #Ruta para EDITAR Registros de EECC
 @app.route('/edit/<string:id>', methods=['POST'])
 def edit(id):
     data = {}
-    for field in ['dia', 'viaje_ot', 'cliente', 'lugar', 'tipo_extra_costo', 'motivo',
+    for field in ['dia', 'viaje_ot', 'lugar', 'tipo_extra_costo', 'motivo',
                'hora_llegada', 'dia2', 'hora_salida', 'dia3', 'total_horas', 'empresa', 'responsable', 
                'monto', 'estado', 'responsable_evaluacion']:
         data[field] = request.form.get(field)    

@@ -41,6 +41,7 @@ def loginUser():
                     session['create_at']        = account['create_at']
                     session['sexo']     = account['sexo']
 
+
                     msg = "Ha iniciado sesión correctamente."
                     return render_template('public/dashboard/home.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion())                    
                 else:
