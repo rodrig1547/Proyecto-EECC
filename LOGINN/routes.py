@@ -23,19 +23,11 @@ def not_found(error):
 #Creando mi Decorador para el Home
 @app.route('/')
 def inicio():
-    if 'conectado' in session:
-        return render_template('public/dashboard/home.html', dataLogin = dataLoginSesion())
+    if 'conectado' in session and 'perfil_usuario' == 'Cat':
+        return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion())
     else:
         return render_template('public/modulo_login/index.html', dataPaises = listaPaises())
     
-    
-@app.route('/login')
-def login():
-    if 'conectado' in session:
-        return render_template('public/dashboard/home.html', dataLogin = dataLoginSesion())
-    else:
-        return render_template('public/modulo_login/index.html', dataPaises = listaPaises())
-
 
 #Ruta para observar los EECC.
 @app.route('/EECC', methods = ['GET','POST'])

@@ -14,8 +14,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 @app.route('/dashboard', methods=['GET', 'POST'])
 def loginUser():
     conexion_MySQLdb = connectionBD()
-    if 'conectado' in session:
-        return render_template('public/dashboard/home.html', dataLogin = dataLoginSesion())
+    if 'conectado' in session and 'perfil_usuario' == 'Cat':
+        return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros())
     else:
         msg = ''
         if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
@@ -43,7 +43,7 @@ def loginUser():
 
 
                     msg = "Ha iniciado sesión correctamente."
-                    return render_template('public/dashboard/home.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion())                    
+                    return render_template('public/dashboard/home_CAT.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion())                    
                 else:
                     msg = 'Datos incorrectos, por favor verfique!'
                     return render_template('public/modulo_login/index.html', msjAlert = msg, typeAlert=0)
@@ -118,7 +118,7 @@ def actualizarMiPerfil(id):
                 
                 if password != repite_password:
                     msg ='Las claves no coinciden'
-                    return render_template('public/dashboard/home.html', msjAlert = msg, typeAlert=0, dataLogin = dataLoginSesion())
+                    return render_template('public/dashboard/home_CAT.html', msjAlert = msg, typeAlert=0, dataLogin = dataLoginSesion())
                 else:
                     nueva_password = generate_password_hash(password, method='pbkdf2:sha256')
                     conexion_MySQLdb = connectionBD()
@@ -137,7 +137,7 @@ def actualizarMiPerfil(id):
                     cur.close() #Cerrando conexion SQL
                     conexion_MySQLdb.close() #cerrando conexion de la BD
                     msg = 'Perfil actualizado correctamente'
-                    return render_template('public/dashboard/home.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion())
+                    return render_template('public/dashboard/home_CAT.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion())
             else:
                 msg = 'Perfil actualizado con exito'
                 conexion_MySQLdb = connectionBD()
@@ -153,8 +153,8 @@ def actualizarMiPerfil(id):
                     WHERE id = %s""", (nombre, apellido, email, perfil_usuario, pais, id))
                 conexion_MySQLdb.commit()
                 cur.close()
-                return render_template('public/dashboard/home.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion())
-        return render_template('public/dashboard/home.html', dataLogin = dataLoginSesion())             
+                return render_template('public/dashboard/home_CAT.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion())
+        return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion())             
         
         
 if __name__ == "__main__":

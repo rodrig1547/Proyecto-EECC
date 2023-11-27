@@ -56,7 +56,8 @@
                             <select class="form-control mb-3" name="tipo_extra_costo">
                                 <option selected>-----</option>
                                 <option value="AJUSTE TARIFA ADICIONAL POR TRAMO">AJUSTE TARIFA ADICIONAL POR TRAMO</option>                                
-                                <option value="AJUSTE TARIFA DESCUENTO POR TRAMO">AJUSTE TARIFA DESCUENTO POR TRAMO</option>                                                                
+                                <option value="AJUSTE TARIFA DESCUENTO POR TRAMO">AJUSTE TARIFA DESCUENTO POR TRAMO</option>
+                                <option value="CUADRATURA ARRIENDO FIJO">CUADRATURA ARRIENDO FIJO</option>                                                                
                                 <option value="URGENCIA DOBLE CONDUCTOR">URGENCIA DOBLE CONDUCTOR</option>                                
                                 <option value="DIFERENCIA TARIFA EL LIBERTADOR">DIFERENCIA TARIFA EL LIBERTADOR</option>                                
                                 <option value="MOVIMIENTO INTERNO FAENA">MOVIMIENTO INTERNO FAENA</option>                                
@@ -264,7 +265,7 @@
                                         <label>Tipo Extra Costo</label>
                                         <select class="form-control mb-3" name="tipo_extra_costo">
                                             <option selected>-----</option>
-                                            {% for tipo in ['AJUSTE TARIFA ADICIONAL POR TRAMO', 'AJUSTE TARIFA DESCUENTO POR TRAMO', 
+                                            {% for tipo in ['AJUSTE TARIFA ADICIONAL POR TRAMO', 'AJUSTE TARIFA DESCUENTO POR TRAMO', 'CUADRATURA ARRIENDO FIJO', 'CUADRATURA ARRIENDO FIJO'
                                             'URGENCIA DOBLE CONDUCTOR', 'DIFERENCIA TARIFA EL LIBERTADOR', 'MOVIMIENTO INTERNO FAENA', 
                                             'REDESTINACION CLIENTE', 'REDESTINACION SITRANS', 'ESTADIA EN BODEGA DE CLIENTE', 'FALSO FLETE CLIENTE', 
                                             'FALSO FLETE OPERACIONAL SITRANS', 'POSICIONAMIENTO VACIO CLIENTE', 'POSICIONAMIENTO VACIO SITRANS', 'SIDER', 'SERVICIO SOBREDIMENSION'] %}
