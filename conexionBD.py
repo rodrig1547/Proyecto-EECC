@@ -7,11 +7,14 @@ def connectionBD():
         host ="localhost",
         user ="root",
         passwd ="",
-        database = "db.eecc"
+        database = "eecc"
         )
+    return mydb
+    '''       
     if mydb:
-        print ("Conexion exitosa a BD")
-        return mydb
+        return ("Conexion exitosa")
     else:
-        print("Error en la conexion a BD")
+        return ("Error en la conexion a BD")
+    '''
+    
     

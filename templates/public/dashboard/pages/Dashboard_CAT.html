@@ -1,0 +1,282 @@
+{% block body %}
+<!-- {{  session }} -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    function confirmarGuardado() {
+        // Obtén el valor del campo de archivo
+        var archivoInput = $("input[name='foto']")[0];
+        var archivoCargado = archivoInput.files.length > 0;
+
+        // Verifica que se haya cargado un archivo
+        if (!archivoCargado) {
+            alert("Por favor, cargue un archivo antes de guardar.");
+            return;
+        }
+
+        // Utiliza window.confirm para mostrar una ventana de confirmación
+        if (window.confirm("¿Estás seguro de que deseas guardar la información?")) {
+            // Si el usuario hace clic en "Aceptar", envía el formulario
+            $("form").submit();
+        } else {
+            // Si el usuario hace clic en "Cancelar", no hace nada
+        }
+    }
+
+    $(document).ready(function(){
+        // Oculta los campos al cargar la página
+        $(".extra-costo-fields").hide();
+
+        // Muestra u oculta los campos al cambiar la selección
+        $("select[name='tipo_extra_costo']").change(function(){
+            if ($(this).val() === "ESTADIA EN BODEGA DE CLIENTE") {
+                $(".extra-costo-fields").show();
+            } else {
+                $(".extra-costo-fields").hide();
+            }
+        });
+    });
+</script>
+<script>
+    function confirmarEliminar(url) {
+        // Utiliza window.confirm para mostrar una ventana de confirmación
+        if (window.confirm("¿Estás seguro de que deseas eliminar este elemento?")) {
+            // Si el usuario hace clic en "Aceptar", redirige a la URL de eliminación
+            window.location.href = url;
+        } else {
+            // Si el usuario hace clic en "Cancelar", no hace nada
+        }
+    }
+
+    // Resto del código JavaScript...
+</script>
+<script>
+    $(document).ready(function() {
+        $('#montoInput').on('input', function() {
+            // Obtén el valor del campo de entrada
+            let monto = $(this).val();
+
+            // Elimina cualquier caracter que no sea un número
+            monto = monto.replace(/\D/g, '');
+
+            // Agrega el signo de dólar y formatea el número con puntos como separadores de miles
+            monto = '$' + parseFloat(monto).toLocaleString('es-AR');
+
+            // Establece el valor formateado de vuelta en el campo de entrada
+            $(this).val(monto);
+        });
+    });
+</script>
+
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="card shadow">
+            <div class="card-body">
+                <form action='{{url_for("addUser")}}' method="POST" enctype="multipart/form-data">   
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label>Dia</label>
+                            <input type="text" class="form-control mb-3" name="dia" pattern="\d{2}-\d{2}-\d{4}" title="Ingrese una fecha válida en formato dd-mm-yyyy">
+
+                        </div>
+
+                        <div class="col">
+                            <label>Viaje/OT</label>
+                            <input type="text" class="form-control mb-3" name="viaje_ot">
+                        </div>
+                        <div class="col">
+                            <label>Cliente</label>
+                            <select class="form-control mb-3" name="cliente">                                                          
+                                <option selected>-----</option>
+                                <option value="AMSA">AMSA</option>
+                                <option value="Alto Norte">Alto Norte</option>
+                                <option value="BHP">BHP</option>
+                                <option value="Codelco">Codelco</option>
+                                <option value="Codesa">Codesa</option>      
+                                <option value="CMDIC">CMDIC</option>
+                                <option value="Engie">Engie</option>
+                                <option value="Finning">Finning</option>                  
+                                <option value="Glencore">Glencore</option>
+                                <option value="Lomas Bayas">Lomas Bayas</option>
+                                <option value="Glencore">Otras Mineras</option>                             
+                                
+                            </select>                           
+                        </div>
+                    
+
+                        <div class="col">
+                            <label>Agencia</label>
+                            <select class="form-control mb-3" name="lugar">
+                                <option selected>-----</option>
+                                <option value="IQQ">IQQ</option>
+                                <option value="POZ">POZ</option>
+                                <option value="SCL">SCL</option>
+                                <option value="MCC">MCC</option>
+                            </select>                            
+                        </div>
+
+                        <div class="col">
+                            <label>Tipo Extra Costo</label>
+                            <select class="form-control mb-3" name="tipo_extra_costo">
+                                <option selected>-----</option>
+                                <option value="AJUSTE TARIFA ADICIONAL POR TRAMO">AJUSTE TARIFA ADICIONAL POR TRAMO</option>                                
+                                <option value="AJUSTE TARIFA DESCUENTO POR TRAMO">AJUSTE TARIFA DESCUENTO POR TRAMO</option>
+                                <option value="CUADRATURA ARRIENDO FIJO">CUADRATURA ARRIENDO FIJO</option>                                                                
+                                <option value="URGENCIA DOBLE CONDUCTOR">URGENCIA DOBLE CONDUCTOR</option>                                
+                                <option value="DIFERENCIA TARIFA EL LIBERTADOR">DIFERENCIA TARIFA EL LIBERTADOR</option>                                
+                                <option value="MOVIMIENTO INTERNO FAENA">MOVIMIENTO INTERNO FAENA</option>                                
+                                <option value="REDESTINACION CLIENTE">REDESTINACION CLIENTE</option>                                
+                                <option value="REDESTINACION SITRANS">REDESTINACION SITRANS</option>                                
+                                <option value="ESTADIA EN BODEGA DE CLIENTE">ESTADIA EN BODEGA DE CLIENTE</option>                      
+                                <option value="FALSO FLETE CLIENTE">FALSO FLETE CLIENTE</option>
+                                <option value="FALSO FLETE OPERACIONAL SITRANS">FALSO FLETE OPERACIONAL SITRANS</option>
+                                <option value="POSICIONAMIENTO VACIO CLIENTE">POSICIONAMIENTO VACIO CLIENTE</option>
+                                <option value="POSICIONAMIENTO VACIO SITRANS">POSICIONAMIENTO VACIO SITRANS</option>
+                                <option value="SIDER">SIDER</option>
+                                <option value="SERVICIO SOBREDIMENSION">SERVICIO SOBREDIMENSION</option>                                
+                            </select>            
+                        </div>
+
+                        <div class="col">
+                            <label>Motivo</label>
+                            <input type="text" class="form-control mb-3" name="motivo">
+                        </div>
+
+                        <div class="col extra-costo-fields">
+                            <label>Hora Llegada</label>
+                            <input type="text" class="form-control mb-3" name="hora_llegada" pattern="^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" title="Por favor, ingrese una hora válida en formato hh:mm">
+
+                            <!--<input type="text" class="form-control mb-3" name="hora_llegada">>-->
+                        </div>
+
+                        <div class="col extra-costo-fields">
+                            <label>Dia</label>
+                            <input type="text" class="form-control mb-3" name="dia2" pattern="\d{2}-\d{2}-\d{4}" title="Ingrese una fecha válida en formato dd-mm-yyyy">
+                        </div>                           
+                    </div>
+
+                    <div class="row mb-3">                        
+                        <div class="col extra-costo-fields">
+                            <label>Hora de Salida</label>    
+                            <input type="text" class="form-control mb-3" name="hora_salida" pattern="^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" title="Por favor, ingrese una hora válida en formato hh:mm">
+
+                        </div>
+
+                        <div class="col extra-costo-fields">
+                            <label>Dia</label>
+                            <input type="text" class="form-control mb-3" name="dia3" pattern="\d{2}-\d{2}-\d{4}" title="Ingrese una fecha válida en formato dd-mm-yyyy">
+                        </div>
+
+                        <div class="col extra-costo-fields">
+                            <label>Total Horas</label>
+                            <input type="text" class="form-control mb-3" name="total_horas">
+                        </div>
+
+                        <div class="col">
+                            <label>Empresa</label>
+                            <input type="text" class="form-control mb-3" name="empresa">
+                        </div>
+
+                        <div class="col">
+                            <label>Responsable</label>
+                            <select class="form-control mb-3" name="responsable">
+                                <option selected>-----</option>
+                                <option value="Cliente">Cliente</option>
+                                <option value="Mintral">Mintral</option>     
+                            </select>                    
+                        </div>
+
+                        <div class="col">
+                            <label>Monto</label>
+                            <input type="text" class="form-control mb-3" name="monto" id="montoInput"> 
+                        </div>
+                        <!--Estado depende del perfil de usuario--> 
+
+                        <div class="col">
+                            <label for="foto">Adjuntar Archivo</label>
+                            <input type="file" name="foto" accept=".rar, .zip" required>
+                        </div>
+
+
+                        <div class="col">
+                            <button class="btn btn-primary mb-3 mt-4" type="button" onclick="confirmarGuardado()">Guardar</button>
+                        </div>
+
+                        
+
+                    </div>
+
+
+
+                </form>
+
+
+                <!-- Tabla -->
+            <div style="overflow-x: auto;" >
+                <table class="table table-bordered" style="font-size: 10px;">
+                    <thead>
+                        <tr>
+                            <th class="col-1" style="width: 15%;">ID</th>
+                            <th scope="col">Usuario</th>
+                            <th scope="col">_____Dia_____</th>                            
+                            <th scope="col">Viaje/OT</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Agencia</th>
+                            <th scope="col">Tipo_Extra_Costo</th>
+                            <th scope="col">_____Motivo_____</th>
+                            <th scope="col">Hora_Llegada</th>
+                            <th scope="col">_____Dia_____</th>
+                            <th scope="col">Hora_Salida</th>
+                            <th scope="col">_____Dia_____</th>
+                            <th scope="col">Total Horas</th>
+                            <th scope="col">Empresa</th>
+                            <th scope="col">Responsable</th>
+                            <th scope="col">Monto</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Archivo</th>
+                            <th scope="col">Delete</th>
+                        </tr>
+                    </thead>
+            </div>
+            
+                <tbody>
+                    {% for d in data %}
+                        <tr>
+                            <td>{{d.id}}</td>
+                            <td>{{d.usuario}}</td>
+                            <td>{{d.dia}}</td>
+                            <td>{{d.viaje_ot}}</td>
+                            <td>{{d.cliente}}</td>
+                            <td>{{d.lugar}}</td>
+                            <td>{{d.tipo_extra_costo}}</td>
+                            <td>{{d.motivo}}</td>
+                            <td>{{d.hora_llegada}}</td>
+                            <td>{{d.dia2}}</td>
+                            <td>{{d.hora_salida}}</td>
+                            <td>{{d.dia3}}</td>
+                            <td>{{d.total_horas}}</td>
+                            <td>{{d.empresa}}</td>
+                            <td>{{d.responsable}}</td>
+                            <td>{{d.monto}}</td>
+                            <td>{{d.estado}}</td>
+                            <td><a href="{{ url_for('download', nombre_zip=d.nombre_zip) }}" class="btn btn-success btn-sm" title="Descargar">Descargar</a></td>  
+                            <td><a href="#" class="btn btn-danger btn-sm" onclick="confirmarEliminar('{{ url_for('delete', id=d.id, estado=d.estado) }}')">Delete</a></td>
+                                
+                        </tr>
+
+                        <!-- modal -->
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}
