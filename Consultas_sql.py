@@ -21,7 +21,7 @@ def mostrarHistorial(cliente = None):
     conexion_MySQLdb = connectionBD() #creando mi instancia a la conexion de BD
     cursor = conexion_MySQLdb.cursor()
     if cliente is None:
-        cursor.execute(f"SELECT * FROM eecc Where estado ='Aprobado' OR estado = 'Rechazado' ORDER BY id DESC")
+        cursor.execute(f"SELECT * FROM eecc Where estado ='Aprobado' OR estado = 'Rechazado' OR estado = 'Ingresado Sitrack' OR estado = 'No ingresado Sitrack' ORDER BY id DESC")
     else: 
         cursor.execute(f"SELECT * FROM eecc Where (estado ='Aprobado' OR estado = 'Rechazado') and cliente = '{cliente}'  ORDER BY id DESC")
         print (cliente)
@@ -64,6 +64,15 @@ def actualizacionEstado(values):
     conexion_MySQLdb = connectionBD()
     cursor = conexion_MySQLdb.cursor()
     sql = "UPDATE eecc SET estado = %s, responsable_evaluacion = %s, fecha_cierre = %s  WHERE id = %s"
+    cursor.execute(sql, values)
+    conexion_MySQLdb.commit()
+    cursor.close()
+
+
+def actualizacionEstadoSistemas(values):
+    conexion_MySQLdb = connectionBD()
+    cursor = conexion_MySQLdb.cursor()
+    sql = "UPDATE eecc SET estado = %s, responsable_evaluacion = %s, fecha_ingreso_sitrack = %s  WHERE id = %s"
     cursor.execute(sql, values)
     conexion_MySQLdb.commit()
     cursor.close()

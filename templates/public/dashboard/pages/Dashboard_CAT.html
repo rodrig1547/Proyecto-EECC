@@ -110,6 +110,8 @@
                             <label>Agencia</label>
                             <select class="form-control mb-3" name="lugar">
                                 <option selected>-----</option>
+                                <option value="IQQ">ANTUCOYA</option>
+                                <option value="IQQ">ANF</option>
                                 <option value="IQQ">IQQ</option>
                                 <option value="POZ">POZ</option>
                                 <option value="SCL">SCL</option>
@@ -218,25 +220,25 @@
                 <table class="table table-bordered" style="font-size: 10px;">
                     <thead>
                         <tr>
-                            <th class="col-1" style="width: 15%;">ID</th>
-                            <th scope="col">Usuario</th>
-                            <th scope="col">_____Dia_____</th>                            
-                            <th scope="col">Viaje/OT</th>
-                            <th scope="col">Cliente</th>
-                            <th scope="col">Agencia</th>
-                            <th scope="col">Tipo_Extra_Costo</th>
-                            <th scope="col">_____Motivo_____</th>
-                            <th scope="col">Hora_Llegada</th>
-                            <th scope="col">_____Dia_____</th>
-                            <th scope="col">Hora_Salida</th>
-                            <th scope="col">_____Dia_____</th>
-                            <th scope="col">Total Horas</th>
-                            <th scope="col">Empresa</th>
-                            <th scope="col">Responsable</th>
-                            <th scope="col">Monto</th>
-                            <th scope="col">Estado</th>
-                            <th scope="col">Archivo</th>
-                            <th scope="col">Delete</th>
+                            <th class="col-1" style="width: 2%;">ID</th>
+                            <th scope="col" style="width: 5%">Usuario</th>
+                            <th scope="col" style="width: 5%" >Dia</th>                            
+                            <th scope="col" style="width: 4%">Viaje/OT</th>
+                            <th scope="col" style="width: 4%">Cliente</th>
+                            <th scope="col" style="width: 4%">Agencia</th>
+                            <th scope="col" style="width: 4%">Tipo Extra Costo</th>
+                            <th scope="col" style="width: 10%">Motivo</th>
+                            <th scope="col" style="width: 5%">Hora Llegada</th>
+                            <th scope="col" style="width: 5%">Dia</th>
+                            <th scope="col" style="width: 5%">Hora_Salida</th>
+                            <th scope="col" style="width: 5%">Dia</th>
+                            <th scope="col" style="width: 5%">Total Horas</th>
+                            <th scope="col" style="width: 5%">Empresa</th>
+                            <th scope="col" style="width: 5%">Responsable</th>
+                            <th scope="col" style="width: 5%">Monto</th>
+                            <th scope="col" style="width: 5%">Estado</th>
+                            <th scope="col" style="width: 5%">Archivo</th>
+                            <th scope="col" style="width: 5%">Delete</th>
                         </tr>
                     </thead>
             </div>
@@ -261,8 +263,8 @@
                             <td>{{d.responsable}}</td>
                             <td>{{d.monto}}</td>
                             <td>{{d.estado}}</td>
-                            <td><a href="{{ url_for('download', nombre_zip=d.nombre_zip) }}" class="btn btn-success btn-sm" title="Descargar">Descargar</a></td>  
-                            <td><a href="#" class="btn btn-danger btn-sm" onclick="confirmarEliminar('{{ url_for('delete', id=d.id, estado=d.estado) }}')">Delete</a></td>
+                            <td><a href="{{ url_for('download', nombre_zip=d.nombre_zip) }}" class="btn btn-success btn-sm" title="Descargar" style="font-size: 10px;">Descargar</a></td>  
+                            <td><a href="#" class="btn btn-danger btn-sm" onclick="confirmarEliminar('{{ url_for('delete', id=d.id, estado=d.estado) }}')" style="font-size: 10px;">Delete</a></td>
                                 
                         </tr>
 

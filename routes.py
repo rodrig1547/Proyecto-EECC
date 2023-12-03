@@ -24,12 +24,14 @@ def not_found(error):
 #Creando mi Decorador para el Home
 @app.route('/home')
 def inicio():
-    perfil_usuario = session['tipo_user']
-    print (perfil_usuario)
+    if 'conectado' in session: 
+            perfil_usuario = session['tipo_user']
     if 'conectado' in session and perfil_usuario == 100:
         return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion'))
     elif 'conectado' in session and perfil_usuario == 2:
         return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
+    elif 'conectado' in session and perfil_usuario == 3:
+        return render_template('public/dashboard/home_Sistemas.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
     else: 
         return render_template('public/modulo_login/index.html', dataPaises = listaPaises())
 
@@ -39,8 +41,9 @@ def editProfile():
     if 'conectado' in session and session['tipo_user'] == 100:
         return render_template('public/dashboard/pages/Profile_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), dataPaises = listaPaises())
     elif 'conectado' in session and session['tipo_user'] == 2:
-        return render_template('public/dashboard/pages/Profile_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), dataPaises = listaPaises())
-    
+        return render_template('public/dashboard/pages/Profile_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), dataPaises = listaPaises())
+    elif 'conectado' in session and session['tipo_user'] == 3:
+        return render_template('public/dashboard/pages/Profile_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), dataPaises = listaPaises())
     return redirect(url_for('inicio'))     
 
 
@@ -62,6 +65,9 @@ def historial():
     elif 'conectado' in session and perfil_usuario == 2 :
         print (perfil_usuario)
         return render_template('public/dashboard/pages/historial_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(session['minera']))
+    elif 'conectado' in session and perfil_usuario == 3 :
+        print (perfil_usuario)
+        return render_template('public/dashboard/pages/historial_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial())
 
        
     
@@ -83,7 +89,7 @@ def addUser():
             data['usuario'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido'] 
             data['nombre_zip'] = nuevoNombreFile
             data['estado'] = 'Pendiente Aprobacion'
-            data['fecha_creacion'] = (datetime.now()).strftime('%d-%m-%Y')
+            data['fecha_creacion'] = (datetime.now()).strftime('%d-%m-%Y, %H:%M:%S')
 
 
     
@@ -159,10 +165,25 @@ def actualizacion(id, estado):
     values = list(data.values())
     print (values)
     actualizacionEstado(values)      
-    perfil_usuario = session['perfil_usuario']   
-    return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion', perfil_usuario[13:]))
+    return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
 
+
+#Ruta para Aprobar o Rechazar un EECC
+@app.route('/actualizacion/<string:id>/<string:estado>/<string:responsable>')
+def actualizacionSistemas(id, estado, responsable):
+    print(f"Received id: {id}, estado: {estado}")
+    data = {}
+    data['estado'] = estado
+    data['responsable_evaluacion'] = responsable 
+    data['fecha_ingreso_sitrack'] = (datetime.now()).strftime('%d-%m-%Y') 
+    data['id'] = id
     
+    values = list(data.values())
+    print (values)
+    actualizacionEstadoSistemas(values)      
+    return render_template('public/dashboard/home_Sistemas.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
+
+     
 # Cerrar session del usuario
 @app.route('/logout')
 def logout():
