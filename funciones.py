@@ -24,17 +24,6 @@ def dataLoginSesion():
     }
     return inforLogin
 
-
-def listaPaises():
-    conexion_MySQLdb = connectionBD() #Hago instancia a mi conexion desde la funcion
-    mycursor       = conexion_MySQLdb.cursor(dictionary=True)
-    querySQL  = ("SELECT * FROM countries")
-    mycursor.execute(querySQL)
-    paises = mycursor.fetchall() #fetchall () Obtener todos los registros
-    mycursor.close() #cerrrando conexion SQL
-    conexion_MySQLdb.close() #cerrando conexion de la BD
-    return paises
-
 def dataPerfilUsuario():
     conexion_MySQLdb = connectionBD() 
     mycursor       = conexion_MySQLdb.cursor(dictionary=True)

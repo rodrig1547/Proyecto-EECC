@@ -18,14 +18,19 @@ def loginUser():
     if 'conectado' in session:
         perfil_usuario = session['tipo_user']
         print (perfil_usuario)
+        #Perfil Desarrollador
         if perfil_usuario == 1:
-            return render_template('public/dashboard/home_desarrollo.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario(), data=mostrarRegistros())
+            return render_template('public/dashboard/home_desarrollo.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario(), data=mostrarRegistros('Pendiente Aprobacion'))
+        #Perfil Cat
         elif perfil_usuario == 100:
             return render_template('public/dashboard/home_CAT.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario(), data=mostrarRegistros('Pendiente Aprobacion'))
+        #Perfil Ad. Contrato
         elif perfil_usuario == 2:
             return render_template('public/dashboard/home_Admin.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
+        #Perfil Sistemas
         elif perfil_usuario == 3:
             return render_template('public/dashboard/home_Sistemas.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
+            
     else:
         msg = ''
         if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
@@ -63,9 +68,7 @@ def loginUser():
                     return render_template('public/modulo_login/index.html', msjAlert = msg, typeAlert=0)
             else:
                 return render_template('public/modulo_login/index.html', msjAlert = msg, typeAlert=0)
-    return render_template('public/modulo_login/index.html', msjAlert = 'Debe iniciar sesión.', typeAlert=0, dataPaises = listaPaises())
-
-
+    return render_template('public/modulo_login/index.html', msjAlert = 'Debe iniciar sesión.', typeAlert=0)
 
 #Registrando una cuenta de Usuario
 @app.route('/registro-usuario', methods=['GET', 'POST'])
@@ -119,16 +122,11 @@ def registerUser():
     return render_template('public/layout.html', dataLogin = dataLoginSesion(), msjAlert = msg, typeAlert=0)
 
 
-
 @app.route('/actualizar-mi-perfil/<id>', methods=['POST'])
 def actualizarMiPerfil(id):
     if 'conectado' in session:
         msg = ''
         if request.method == 'POST':
-            nombre        = request.form['nombre']
-            apellido      = request.form['apellido']
-            email         = request.form['email']
-
             if(request.form['password']):
                 password         = request.form['password'] 
                 repite_password  = request.form['repite_password'] 
@@ -139,18 +137,22 @@ def actualizarMiPerfil(id):
                 elif (password != repite_password) and (session['tipo_user'] == 2):
                     msg ='Las claves no coinciden'
                     return render_template('public/dashboard/home_Admin.html', msjAlert = msg, typeAlert=0, dataLogin = dataLoginSesion(),data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
+                elif (password != repite_password) and (session['tipo_user'] == 3):
+                    msg ='Las claves no coinciden'
+                    return render_template('public/dashboard/home_Sistemas.html',  msjAlert = msg, typeAlert=0, dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
+
+    
+
+
                 else:
                     nueva_password = generate_password_hash(password, method='pbkdf2:sha256')
                     conexion_MySQLdb = connectionBD()
                     cur = conexion_MySQLdb.cursor()
                     cur.execute("""
                         UPDATE login_python 
-                        SET 
-                            nombre = %s, 
-                            apellido = %s, 
-                            email = %s,  
+                        SET                              
                             password = %s
-                        WHERE id = %s""", (nombre, apellido, email, nueva_password, id))
+                        WHERE id = %s""", (nueva_password, id))
                     conexion_MySQLdb.commit()
                     cur.close() #Cerrando conexion SQL
                     conexion_MySQLdb.close() #cerrando conexion de la BD
@@ -159,30 +161,16 @@ def actualizarMiPerfil(id):
                         return render_template('public/dashboard/home_CAT.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion(), data=mostrarRegistros('Pendiente Aprobacion'))
                     elif session['tipo_user'] == 2:
                         return render_template('public/dashboard/home_Admin.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
-            else:
-                msg = 'Perfil actualizado con exito'
-                conexion_MySQLdb = connectionBD()
-                cur = conexion_MySQLdb.cursor()
-                cur.execute("""
-                    UPDATE login_python 
-                    SET 
-                        nombre = %s, 
-                        apellido = %s, 
-                        email = %s
-                    WHERE id = %s""", (nombre, apellido, email, id))
-                conexion_MySQLdb.commit()
-                cur.close()
-                if session['tipo_user'] == 100:
-                    return render_template('public/dashboard/home_CAT.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion(), data=mostrarRegistros('Pendiente Aprobacion'))
-                elif session['tipo_user'] == 2:
-                    return render_template('public/dashboard/home_Admin.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
+                    elif session['tipo_user'] == 3:
+                        return render_template('public/dashboard/home_Sistemas.html',  msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
+
+            
         if session['tipo_user'] == 100:
             return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion(), data=mostrarRegistros('Pendiente Aprobacion'))             
         elif session['tipo_user'] == 2:
-            return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))             
-    
-
-
+            return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))   
+        elif session['tipo_user'] == 3: 
+            return render_template('public/dashboard/home_Sistemas.html', dataLogin=dataLoginSesion(), data = mostrarRegistros('Aprobado'))
 
 
 if __name__ == "__main__":

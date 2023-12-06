@@ -18,7 +18,7 @@ def not_found(error):
     if 'conectado' in session:
         return redirect(url_for('inicio'))
     else:
-        return render_template('public/modulo_login/index.html', dataPaises = listaPaises())
+        return render_template('public/modulo_login/index.html')
     
     
 #Creando mi Decorador para el Home
@@ -33,17 +33,17 @@ def inicio():
     elif 'conectado' in session and perfil_usuario == 3:
         return render_template('public/dashboard/home_Sistemas.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
     else: 
-        return render_template('public/modulo_login/index.html', dataPaises = listaPaises())
+        return render_template('public/modulo_login/index.html')
 
 #Ruta para editar el perfil del cliente
 @app.route('/edit-profile', methods=['GET', 'POST'])
 def editProfile():
     if 'conectado' in session and session['tipo_user'] == 100:
-        return render_template('public/dashboard/pages/Profile_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), dataPaises = listaPaises())
+        return render_template('public/dashboard/pages/Profile_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
     elif 'conectado' in session and session['tipo_user'] == 2:
-        return render_template('public/dashboard/pages/Profile_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), dataPaises = listaPaises())
+        return render_template('public/dashboard/pages/Profile_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
     elif 'conectado' in session and session['tipo_user'] == 3:
-        return render_template('public/dashboard/pages/Profile_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), dataPaises = listaPaises())
+        return render_template('public/dashboard/pages/Profile_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
     return redirect(url_for('inicio'))     
 
 
@@ -70,6 +70,12 @@ def historial():
         return render_template('public/dashboard/pages/historial_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial())
 
        
+@app.route('/historico', methods = ['GET','POST'])
+def historial_historico():
+    perfil_usuario = session['tipo_user']
+    print ('algo', mostrarhistorico('10-11-2021', '10-11-2023'))
+    if 'conectado' in session and perfil_usuario in [100, 2, 3]:
+        return render_template('public/dashboard/pages/historico_Global.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarhistorico( '04-11-2023', '10-12-2023'))
     
 
 #Ruta para agregar/guardar registros a EECC
@@ -89,7 +95,7 @@ def addUser():
             data['usuario'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido'] 
             data['nombre_zip'] = nuevoNombreFile
             data['estado'] = 'Pendiente Aprobacion'
-            data['fecha_creacion'] = (datetime.now()).strftime('%d-%m-%Y, %H:%M:%S')
+            data['fecha_creacion'] = (datetime.now()).strftime('%d-%m-%Y, %H:%M')
 
 
     
@@ -159,7 +165,7 @@ def actualizacion(id, estado):
     data = {}
     data['estado'] = estado
     data['responsable_evaluacion'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido'] 
-    data['fecha_cierre'] = (datetime.now()).strftime('%d-%m-%Y') 
+    data['fecha_cierre'] = (datetime.now()).strftime('%d-%m-%Y, %H:%M') 
     data['id'] = id
     
     values = list(data.values())
@@ -175,7 +181,7 @@ def actualizacionSistemas(id, estado, responsable):
     data = {}
     data['estado'] = estado
     data['responsable_evaluacion'] = responsable 
-    data['fecha_ingreso_sitrack'] = (datetime.now()).strftime('%d-%m-%Y') 
+    data['fecha_ingreso_sitrack'] = (datetime.now()).strftime('%d-%m-%Y, %H:%M') 
     data['id'] = id
     
     values = list(data.values())

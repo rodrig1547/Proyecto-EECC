@@ -56,13 +56,13 @@
             let monto = $(this).val();
 
             // Elimina cualquier caracter que no sea un número
-            monto = monto.replace(/\D/g, '');
+            monto = monto.replace(/[^\d-]/g, '');
 
             // Agrega el signo de dólar y formatea el número con puntos como separadores de miles
-            monto = '$' + parseFloat(monto).toLocaleString('es-AR');
+            let formattedMonto = '$' + parseFloat(monto).toLocaleString('es-AR');
 
             // Establece el valor formateado de vuelta en el campo de entrada
-            $(this).val(monto);
+            $(this).val(formattedMonto);
         });
     });
 </script>

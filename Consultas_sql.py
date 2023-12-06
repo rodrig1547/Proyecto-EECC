@@ -23,7 +23,7 @@ def mostrarHistorial(cliente = None):
     if cliente is None:
         cursor.execute(f"SELECT * FROM eecc Where estado ='Aprobado' OR estado = 'Rechazado' OR estado = 'Ingresado Sitrack' OR estado = 'No ingresado Sitrack' ORDER BY id DESC")
     else: 
-        cursor.execute(f"SELECT * FROM eecc Where (estado ='Aprobado' OR estado = 'Rechazado') and cliente = '{cliente}'  ORDER BY id DESC")
+        cursor.execute(f"SELECT * FROM eecc Where (estado ='Aprobado' OR estado = 'Rechazado' OR estado = 'Ingresado Sitrack' OR estado = 'No ingresado Sitrack') and cliente = '{cliente}'  ORDER BY id DESC")
         print (cliente)
     myresult = cursor.fetchall()
     #Convertir los datos a diccionario
@@ -33,6 +33,22 @@ def mostrarHistorial(cliente = None):
         insertObject.append(dict(zip(columnNames, record)))
     cursor.close() # Cerrando Conexion a la BD
     return insertObject
+
+def mostrarhistorico(fecha_inicio, fecha_fin):
+    conexion_MySQLdb = connectionBD() #creando mi instancia a la conexion de BD
+    cursor = conexion_MySQLdb.cursor()
+    cursor.execute(f"SELECT * FROM eecc WHERE STR_TO_DATE(dia, '%d-%m-%Y') AND dia >= '{fecha_inicio}' AND dia <= '{fecha_fin}' ORDER BY id DESC")
+
+
+    myresult = cursor.fetchall()
+    #Convertir los datos a diccionario
+    insertObject = []
+    columnNames = [column[0] for column in cursor.description]
+    for record in myresult:
+        insertObject.append(dict(zip(columnNames, record)))
+    cursor.close() # Cerrando Conexion a la BD
+    return insertObject
+
 
 def addUserbd(columns, placeholders, values):
     conexion_MySQLdb = connectionBD()

@@ -1,43 +1,64 @@
 {% block body %}
-<!-- {{  session }} -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    function confirmarAprobar(url) {
+        // Utiliza window.confirm para mostrar una ventana de confirmación
+        if (window.confirm("¿Estás seguro de que desea APROBAR este EXTRACOSTO?")) {
+            // Si el usuario hace clic en "Aceptar", redirige a la URL de eliminación
+            window.location.href = url;
+        } else {
+            // Si el usuario hace clic en "Cancelar", no hace nada
+        }
+    }
 
-</head>
+    // Resto del código JavaScript...
+</script>
+<script>
+    function confirmarRechazo(url) {
+        // Utiliza window.confirm para mostrar una ventana de confirmación
+        if (window.confirm("¿Estás seguro de que desea RECHAZAR este EXTRACOSTO?")) {
+            // Si el usuario hace clic en "Aceptar", redirige a la URL de eliminación
+            window.location.href = url;
+        } else {
+            // Si el usuario hace clic en "Cancelar", no hace nada
+        }
+    }
+
+    // Resto del código JavaScript...
+</script>
 <body>
-    <div class="container-fluid">
-        <div class="card shadow">
-            <div class="card-body">
-                
-                <!-- Tabla -->
-            <div style="overflow-x: auto;" >
-                <table class="table table-bordered" style="font-size: 10px;">
-                    <thead>
-                        <tr>
-                            <th class="col-1" style="width: 2%;">ID</th>
-                            <th scope="col" style="width: 5%;">Usuario</th>
-                            <th scope="col" style="width: 5%;">Dia</th>                            
-                            <th scope="col" style="width: 4%;">Viaje/OT</th>
-                            <th scope="col" style="width: 4%;">Cliente</th>
-                            <th scope="col" style="width: 4%;">Agencia</th>
-                            <th scope="col">Tipo Extra Costo </th>
-                            <th scope="col">Motivo</th>
-                            <th scope="col">Hora_Llegada</th>
-                            <th scope="col">Dia</th>
-                            <th scope="col">Hora Salida</th>
-                            <th scope="col">Dia</th>
-                            <th scope="col">Total Horas</th>
-                            <th scope="col">Empresa</th>
-                            <th scope="col">Responsable</th>
-                            <th scope="col">Monto</th>
-                            <th scope="col">Estado</th>
-                            <th scope="col">Archivo</th>
-                            <th scope="col">Evaluación</th>                            
-                        </tr>
-                    </thead>
-            </div>
-            
+<div class="container-fluid">
+    <div class="card shadow">               
+            <!-- Tabla -->
+        <div style="overflow-x: auto;" >
+            <table class="table table-bordered" style="font-size: 10px;">
+                <thead style="text-align: center;">
+                    <tr>
+                        <th class="col-1" style="width: 50px;">ID</th>
+                        <th scope="col" style="width: 5%;">Usuario</th>
+                        <th scope="col" style="width: 5%;">Dia</th>                            
+                        <th scope="col" style="width: 4%;">Viaje/OT</th>
+                        <th scope="col" style="width: 4%;">Cliente</th>
+                        <th scope="col" style="width: 4%;">Agencia</th>
+                        <th scope="col">Tipo Extra Costo </th>
+                        <th scope="col">Motivo</th>
+                        <th scope="col">Hora Llegada</th>
+                        <th scope="col" style="width: 80px;">Dia</th>
+                        <th scope="col">Hora Salida</th>
+                        <th scope="col" style="width: 80px;">Dia</th>
+                        <th scope="col">Total Horas</th>
+                        <th scope="col">Empresa</th>
+                        <th scope="col">Responsable</th>
+                        <th scope="col">Monto</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Archivo</th>
+                        <th scope="col">Evaluación</th>                            
+                    </tr>
+                </thead>
+        
                 <tbody>
                     {% for d in data %}
-                        <tr>
+                        <tr style="text-align: center;">
                             <td>{{d.id}}</td>
                             <td>{{d.usuario}}</td>
                             <td>{{d.dia}}</td>
@@ -56,9 +77,9 @@
                             <td>{{d.monto}}</td>
                             <td>{{d.estado}}</td>
                             <td><a href="{{ url_for('download', nombre_zip=d.nombre_zip) }}" class="btn btn-success btn-sm" title="Descargar" style="font-size: 8px;">Descargar</a></td>
-                            <td><a href="{{ url_for('actualizacion', estado='Aprobado', id= d.id) }}" class="btn btn-success btn-sm" title="Aprobar" style="font-size: 8px;">A</a>
-                                <a href="{{ url_for('actualizacion', estado= 'Rechazado', id= d.id) }}" class="btn btn-danger btn-sm" title="Rechazar" style="font-size: 8px;">R</a></td>
-                                                     
+                            <td><a href="#" onclick="confirmarAprobar('{{ url_for('actualizacion', estado='Aprobado', id= d.id) }}')" class="btn btn-success btn-sm" title="Aprobar" style="font-size: 8px;">A</a>
+                            <a href="#" onclick="confirmarRechazo('{{ url_for('actualizacion', estado= 'Rechazado', id= d.id) }}')"  class="btn btn-danger btn-sm" title="Rechazar" style="font-size: 8px;">R</a></td>
+                                                        
                         </tr>
 
                         <!-- modal -->
@@ -66,12 +87,9 @@
                     {% endfor %}
 
                 </tbody>
-
             </table>
-
-
-            </div>
         </div>
     </div>
+</div>
     
 {% endblock %}
