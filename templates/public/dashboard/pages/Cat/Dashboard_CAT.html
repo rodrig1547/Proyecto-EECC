@@ -76,12 +76,7 @@
                 <form action='{{url_for("addUser")}}' method="POST" enctype="multipart/form-data">   
 
                     <div class="row mb-3">
-                        <div class="col">
-                            <label>Dia</label>
-                            <input type="text" class="form-control mb-3" name="dia" pattern="\d{2}-\d{2}-\d{4}" title="Ingrese una fecha válida en formato dd-mm-yyyy">
-
-                        </div>
-
+                        
                         <div class="col">
                             <label>Viaje/OT</label>
                             <input type="text" class="form-control mb-3" name="viaje_ot">
@@ -222,7 +217,7 @@
                         <tr>
                             <th class="col-1" style="width: 2%;">ID</th>
                             <th scope="col" style="width: 5%">Usuario</th>
-                            <th scope="col" style="width: 5%" >Dia</th>                            
+                            <th scope="col" style="width: 5%" >Fecha Creación</th>                            
                             <th scope="col" style="width: 4%">Viaje/OT</th>
                             <th scope="col" style="width: 4%">Cliente</th>
                             <th scope="col" style="width: 4%">Agencia</th>
@@ -248,7 +243,7 @@
                         <tr>
                             <td>{{d.id}}</td>
                             <td>{{d.usuario}}</td>
-                            <td>{{d.dia}}</td>
+                            <td>{{d.fecha_creacion}}</td>
                             <td>{{d.viaje_ot}}</td>
                             <td>{{d.cliente}}</td>
                             <td>{{d.lugar}}</td>

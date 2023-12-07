@@ -39,21 +39,14 @@ def inicio():
 @app.route('/edit-profile', methods=['GET', 'POST'])
 def editProfile():
     if 'conectado' in session and session['tipo_user'] == 100:
-        return render_template('public/dashboard/pages/Profile_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
+        return render_template('public/dashboard/pages/Cat/Profile_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
     elif 'conectado' in session and session['tipo_user'] == 2:
-        return render_template('public/dashboard/pages/Profile_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
+        return render_template('public/dashboard/pages/Ad. Contrato/Profile_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
     elif 'conectado' in session and session['tipo_user'] == 3:
-        return render_template('public/dashboard/pages/Profile_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
+        return render_template('public/dashboard/pages/Sistemas/Profile_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
+    elif 'conectado' in session and session['tipo_user'] == 1:
+        return render_template('public/dashboard/pages/Desarrollo/Profile_desarrollo.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
     return redirect(url_for('inicio'))     
-
-
-#Ruta para observar los EECC.
-@app.route('/EECC', methods = ['GET','POST'])
-def EECC():
-    if 'conectado' in session and 'perfil_usuario' == 'Cat':
-        return render_template('public/dashboard/pages/EECC.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarRegistros('Pendiente Aprobacion'))
-    return redirect(url_for('inicio'))
-
 
 #Ruta para observar todos los registros, incluyendo Filtros de Busqueda.
 @app.route('/historial', methods = ['GET','POST'])
@@ -61,13 +54,13 @@ def historial():
     perfil_usuario = session['tipo_user']
     if 'conectado' in session and perfil_usuario == 100:
         print (perfil_usuario)
-        return render_template('public/dashboard/pages/historial_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial())
+        return render_template('public/dashboard/pages/Cat/historial_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial())
     elif 'conectado' in session and perfil_usuario == 2 :
         print (perfil_usuario)
-        return render_template('public/dashboard/pages/historial_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(session['minera']))
+        return render_template('public/dashboard/pages/Ad. Contrato/historial_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(session['minera']))
     elif 'conectado' in session and perfil_usuario == 3 :
         print (perfil_usuario)
-        return render_template('public/dashboard/pages/historial_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial())
+        return render_template('public/dashboard/pages//Sistemas/historial_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial())
 
        
 @app.route('/historico', methods = ['GET','POST'])
@@ -78,6 +71,14 @@ def historial_historico():
         return render_template('public/dashboard/pages/historico_Global.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarhistorico( '04-11-2023', '10-12-2023'))
     
 
+#Ruta para observar los EECC.
+@app.route('/EECC', methods = ['GET','POST'])
+def EECC():
+    if 'conectado' in session and 'perfil_usuario' == 'Cat':
+        return render_template('public/dashboard/pages/EECC.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarRegistros('Pendiente Aprobacion'))
+    return redirect(url_for('inicio'))
+
+
 #Ruta para agregar/guardar registros a EECC
 @app.route('/user', methods=['POST'])
 def addUser():
@@ -87,7 +88,7 @@ def addUser():
         nuevoNombreFile = recibeZip(file) #Llamado la funcion que procesa la imagen
 
         data = {}
-        for field in ['dia', 'viaje_ot', 'cliente', 'lugar', 'tipo_extra_costo', 'motivo',
+        for field in ['viaje_ot', 'cliente', 'lugar', 'tipo_extra_costo', 'motivo',
                     'hora_llegada', 'dia2', 'hora_salida', 'dia3', 'total_horas', 'empresa', 
                     'responsable','monto','estado', 'nombre_zip','fecha_creacion']:
             
@@ -189,6 +190,11 @@ def actualizacionSistemas(id, estado, responsable):
     actualizacionEstadoSistemas(values)      
     return render_template('public/dashboard/home_Sistemas.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
 
+@app.route('/Administrar-Usuarios', methods = ['GET', 'POST'])
+def AdministrarUsuarios():
+    if 'conectado' in session and session['tipo_user'] == 1:
+        print ('Ingreso a  AdministrarUsuarios 1' )
+        return render_template('public/dashboard/pages/Desarrollo/Administrador_Usuarios.html', dataLogin = dataLoginSesion()) 
      
 # Cerrar session del usuario
 @app.route('/logout')

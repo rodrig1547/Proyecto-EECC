@@ -73,53 +73,54 @@ def loginUser():
 #Registrando una cuenta de Usuario
 @app.route('/registro-usuario', methods=['GET', 'POST'])
 def registerUser():
-    msg = ''
-    conexion_MySQLdb = connectionBD()
-    if request.method == 'POST':
-        if request.form['perfil_usuario'] == 'Ad. Contrato':
-            tipo_user = 2
-        elif request.form['perfil_usuario'] == 'Cat':
-            tipo_user = 100
-        elif request.form['perfil_usuario'] == 'Control Trafico':
-            tipo_user = 99
-        elif request.form['perfil_usuario'] == 'Sistemas':
-            tipo_user = 3
-        nombre                      = request.form['nombre']
-        apellido                    = request.form['apellido']
-        email                       = request.form['email']
-        password                    = request.form['password']
-        repite_password             = request.form['repite_password']
-        perfil_usuario                        = request.form['perfil_usuario']
-        minera                        = request.form['minera']
-        create_at                   = date.today()
-        #current_time = datetime.datetime.now()
+    if ('conectado' in session) and (session['tipo_user'] ==1):
+        msg = ''
+        conexion_MySQLdb = connectionBD()
+        if request.method == 'POST':
+            if request.form['perfil_usuario'] == 'Ad. Contrato':
+                tipo_user = 2
+            elif request.form['perfil_usuario'] == 'Cat':
+                tipo_user = 100
+            elif request.form['perfil_usuario'] == 'Control Trafico':
+                tipo_user = 99
+            elif request.form['perfil_usuario'] == 'Sistemas':
+                tipo_user = 3
+            nombre                      = request.form['nombre']
+            apellido                    = request.form['apellido']
+            email                       = request.form['email']
+            password                    = request.form['password']
+            repite_password             = request.form['repite_password']
+            perfil_usuario                        = request.form['perfil_usuario']
+            minera                        = request.form['minera']
+            create_at                   = date.today()
+            #current_time = datetime.datetime.now()
 
-        # Comprobando si ya existe la cuenta de Usuario con respecto al email
-        cursor = conexion_MySQLdb.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM login_python WHERE email = %s', (email,))
-        account = cursor.fetchone()
-        cursor.close() #cerrrando conexion SQL
-          
-        if account:
-            msg = 'Ya existe el Email!'
-        elif password != repite_password:
-            msg = 'Disculpa, las clave no coinciden!'
-        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-            msg = 'Disculpa, formato de Email incorrecto!'
-        elif not email or not password or not password or not repite_password:
-            msg = 'El formulario no debe estar vacio!'
-        else:
-            # La cuenta no existe y los datos del formulario son válidos,
-            password_encriptada = generate_password_hash(password, method='pbkdf2:sha256')
-            conexion_MySQLdb = connectionBD()
+            # Comprobando si ya existe la cuenta de Usuario con respecto al email
             cursor = conexion_MySQLdb.cursor(dictionary=True)
-            cursor.execute('INSERT INTO login_python (tipo_user, nombre, apellido, email, password, perfil_usuario, minera, create_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (tipo_user, nombre, apellido, email, password_encriptada, perfil_usuario, minera, create_at))
-            conexion_MySQLdb.commit()
-            cursor.close()
-            msg = 'Cuenta creada correctamente!'
-
-        return render_template('public/modulo_login/index.html', msjAlert = msg, typeAlert=1, dataPaises = listaPaises())
-    return render_template('public/layout.html', dataLogin = dataLoginSesion(), msjAlert = msg, typeAlert=0)
+            cursor.execute('SELECT * FROM login_python WHERE email = %s', (email,))
+            account = cursor.fetchone()
+            cursor.close() #cerrrando conexion SQL
+            
+            if account:
+                msg = 'Ya existe el Email!'
+            elif password != repite_password:
+                msg = 'Disculpa, las clave no coinciden!'
+            elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+                msg = 'Disculpa, formato de Email incorrecto!'
+            elif not email or not password or not password or not repite_password:
+                msg = 'El formulario no debe estar vacio!'
+            else:
+                # La cuenta no existe y los datos del formulario son válidos,
+                password_encriptada = generate_password_hash(password, method='pbkdf2:sha256')
+                conexion_MySQLdb = connectionBD()
+                cursor = conexion_MySQLdb.cursor(dictionary=True)
+                cursor.execute('INSERT INTO login_python (tipo_user, nombre, apellido, email, password, perfil_usuario, minera, create_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (tipo_user, nombre, apellido, email, password_encriptada, perfil_usuario, minera, create_at))
+                conexion_MySQLdb.commit()
+                cursor.close()
+                msg = 'Cuenta creada correctamente!'
+            print (msg)
+            return render_template('public/dashboard/pages/Desarrollo/Administrador_Usuarios.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion())
+        return redirect(url_for('AdministrarUsuarios'))
 
 
 @app.route('/actualizar-mi-perfil/<id>', methods=['POST'])
