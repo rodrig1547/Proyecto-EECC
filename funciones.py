@@ -20,7 +20,7 @@ def dataLoginSesion():
         "perfil_usuario"                :session['perfil_usuario'],
         "minera"                      :session['minera'],
         "create_at"                 :session['create_at'],
-        "sexo"  :session['sexo']
+        "agencia_financiera"  :session['agencia_financiera']
     }
     return inforLogin
 

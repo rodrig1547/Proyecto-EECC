@@ -92,3 +92,16 @@ def actualizacionEstadoSistemas(values):
     cursor.execute(sql, values)
     conexion_MySQLdb.commit()
     cursor.close()
+
+def nombre_descarga(nombre_zip):
+    conexion_MySQLdb = connectionBD()
+    cursor = conexion_MySQLdb.cursor()
+    cursor.execute(f"SELECT viaje_ot FROM eecc WHERE nombre_zip = '{nombre_zip}'")
+    myresult = cursor.fetchall()
+    #Convertir los datos a diccionario
+    insertObject = []
+    columnNames = [column[0] for column in cursor.description]
+    for record in myresult:
+        insertObject.append(dict(zip(columnNames, record)))
+    cursor.close() # Cerrando Conexion a la BD
+    return insertObject

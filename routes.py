@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, url_for, session, request, s
 from funciones import *  #Importando mis Funciones
 from Consultas_sql import *
 from datetime import datetime
+from forms import CATForm, historialForm
 
 
 #Declarando nombre de la aplicación e inicializando, crear la aplicación Flask
@@ -27,7 +28,8 @@ def inicio():
     if 'conectado' in session: 
             perfil_usuario = session['tipo_user']
     if 'conectado' in session and perfil_usuario == 100:
-        return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion'))
+        form = CATForm()
+        return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion'), form = form)
     elif 'conectado' in session and perfil_usuario == 2:
         return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
     elif 'conectado' in session and perfil_usuario == 3:
@@ -52,24 +54,18 @@ def editProfile():
 @app.route('/historial', methods = ['GET','POST'])
 def historial():
     perfil_usuario = session['tipo_user']
+    form = historialForm(request.form)
+    print (form.data)
+
+    if form.validate() and dataLoginSesion()["tipoLogin"] == 100:
+         return 'hola'
+
     if 'conectado' in session and perfil_usuario == 100:
         print (perfil_usuario)
-        return render_template('public/dashboard/pages/Cat/historial_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial())
-    elif 'conectado' in session and perfil_usuario == 2 :
-        print (perfil_usuario)
-        return render_template('public/dashboard/pages/Ad. Contrato/historial_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(session['minera']))
-    elif 'conectado' in session and perfil_usuario == 3 :
-        print (perfil_usuario)
-        return render_template('public/dashboard/pages//Sistemas/historial_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial())
-
-       
-@app.route('/historico', methods = ['GET','POST'])
-def historial_historico():
-    perfil_usuario = session['tipo_user']
-    print ('algo', mostrarhistorico('10-11-2021', '10-11-2023'))
-    if 'conectado' in session and perfil_usuario in [100, 2, 3]:
-        return render_template('public/dashboard/pages/historico_Global.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarhistorico( '04-11-2023', '10-12-2023'))
+        return render_template('public/dashboard/pages/Cat/historial_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
     
+          
+
 
 #Ruta para observar los EECC.
 @app.route('/EECC', methods = ['GET','POST'])
@@ -80,8 +76,44 @@ def EECC():
 
 
 #Ruta para agregar/guardar registros a EECC
-@app.route('/user', methods=['POST'])
-def addUser():
+@app.route('/user', methods=['GET','POST'])
+def addUser(): 
+    form = CATForm(request.form)
+
+    if form.validate() and dataLoginSesion()["tipoLogin"] == 100: 
+        print (form.data)
+        file     = request.files.get('nombre_zip') #recibiendo el archivo
+        nuevoNombreFile = recibeZip(file) #Llamado la funcion que procesa la imagen
+        data = form.data
+        
+        data['usuario'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido'] 
+        data['nombre_zip'] = nuevoNombreFile
+        data['estado'] = 'Pendiente Aprobacion'
+        data['fecha_creacion'] = (datetime.now()).strftime('%d-%m-%Y, %H:%M')
+        data['motivo'] = data['motivo_ajuste_tarifa'] + data['motivo_redestinacion'] + data['motivo_sobre_estadia'] + data['motivo_falso_flete'] + data['motivo_posicionamiento_vacio']
+        del data['motivo_ajuste_tarifa']
+        del data['motivo_redestinacion']
+        del data['motivo_sobre_estadia']
+        del data['motivo_falso_flete']
+        del data['motivo_posicionamiento_vacio']
+        del data['submit']
+        del data['csrf_token']
+        print ('-----------',data)
+
+
+
+    
+        columns = ', '.join([f'`{column}`' for column in data.keys()])
+        placeholders = ', '.join(['%s'] * len(data))
+        values = list(data.values())
+        addUserbd(columns, placeholders, values)
+        return redirect(url_for('EECC'))
+    
+    else:
+        print(form.errors)
+
+    return redirect(url_for('inicio'))
+
     # Si el Perfil Corresponde a CAT
     if (dataLoginSesion()["tipoLogin"] == 100) and (request.files['foto'] != ''):
         file     = request.files['foto'] #recibiendo el archivo
@@ -157,7 +189,13 @@ def edit(id):
 @app.route('/download/<string:nombre_zip>', methods=['GET'])
 def download(nombre_zip):
     dir = "static/assets/uploads/"
-    return send_from_directory(dir, nombre_zip, as_attachment=True)
+    # Obtener la extensión del archivo original
+    _, extension = os.path.splitext(nombre_zip)
+    
+    # Cambiar el nombre del archivo manteniendo la extensión
+    print(nombre_descarga(nombre_zip))
+    nuevo_nombre = 'Respaldo_viaje/ot_' + str(nombre_descarga(nombre_zip)[0]['viaje_ot']) + extension
+    return send_from_directory(dir, nombre_zip, as_attachment=True, download_name = nuevo_nombre)
 
 #Ruta para Aprobar o Rechazar un EECC
 @app.route('/actualizacion/<string:id>/<string:estado>')

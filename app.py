@@ -10,6 +10,7 @@ from routes import * #Vistas
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
 # Pagina Principal.
 @app.route('/dashboard', methods=['GET', 'POST'])
 def loginUser():
@@ -23,7 +24,8 @@ def loginUser():
             return render_template('public/dashboard/home_desarrollo.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario(), data=mostrarRegistros('Pendiente Aprobacion'))
         #Perfil Cat
         elif perfil_usuario == 100:
-            return render_template('public/dashboard/home_CAT.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario(), data=mostrarRegistros('Pendiente Aprobacion'))
+            form = CATForm()
+            return render_template('public/dashboard/home_CAT.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario(), data=mostrarRegistros('Pendiente Aprobacion'), form = form)
         #Perfil Ad. Contrato
         elif perfil_usuario == 2:
             return render_template('public/dashboard/home_Admin.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
@@ -54,7 +56,7 @@ def loginUser():
                     session['perfil_usuario']             = account['perfil_usuario']
                     session['minera']             = account['minera']
                     session['create_at']        = account['create_at']
-                    session['sexo']     = account['sexo']
+                    session['agencia_financiera']     = account['agencia_financiera']
                     
                       # Determinar la ruta de inicio basada en el perfil de usuario
 

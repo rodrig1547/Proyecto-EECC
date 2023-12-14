@@ -48,10 +48,9 @@
                         <th scope="col" style="width: 80px;">Dia</th>
                         <th scope="col">Total Horas</th>
                         <th scope="col">Empresa</th>
-                        <th scope="col">Responsable</th>
                         <th scope="col">Monto</th>
                         <th scope="col">Estado</th>
-                        <th scope="col">Archivo</th>
+                        <th scope="col">Respaldo</th>
                         <th scope="col">Evaluación</th>                            
                     </tr>
                 </thead>
@@ -61,10 +60,10 @@
                         <tr style="text-align: center;">
                             <td>{{d.id}}</td>
                             <td>{{d.usuario}}</td>
-                            <td>{{d.dia}}</td>
+                            <td>{{d.fecha_creacion}}</td>
                             <td>{{d.viaje_ot}}</td>
                             <td>{{d.cliente}}</td>
-                            <td>{{d.lugar}}</td>
+                            <td>{{d.agencia}}</td>
                             <td>{{d.tipo_extra_costo}}</td>
                             <td>{{d.motivo}}</td>
                             <td>{{d.hora_llegada}}</td>
@@ -73,7 +72,6 @@
                             <td>{{d.dia3}}</td>
                             <td>{{d.total_horas}}</td>
                             <td>{{d.empresa}}</td>
-                            <td>{{d.responsable}}</td>
                             <td>{{d.monto}}</td>
                             <td>{{d.estado}}</td>
                             <td><a href="{{ url_for('download', nombre_zip=d.nombre_zip) }}" class="btn btn-success btn-sm" title="Descargar" style="font-size: 8px;">Descargar</a></td>

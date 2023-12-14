@@ -3,75 +3,106 @@
 
 <div class="container-fluid">
     <div class="card shadow">
-        
-     <!-- Tabla -->
-        <div style="overflow-x: auto;" >
-            <table class="table table-bordered" style="font-size: 10px;">
-                <thead >
-                    <tr style="text-align: center; vertical-align: middle;">
-                        <th class="col-1" style="width: 50px;">ID</th>
-                        <th scope="col" style="width: 50px;">Usuario</th>
-                        <th scope="col" style="width: 80px;">Dia</th>                            
-                        <th scope="col">Viaje/OT</th>
-                        <th scope="col">Cliente</th>
-                        <th scope="col">Agencia</th>
-                        <th scope="col">Tipo Extra Costo</th>
-                        <th scope="col">Motivo</th>
-                        <th scope="col">Hora Llegada</th>
-                        <th scope="col" style="width: 80px;">Dia</th>
-                        <th scope="col">Hora Salida</th>
-                        <th scope="col" style="width: 80px;">Dia</th>
-                        <th scope="col">Total Horas</th>
-                        <th scope="col">Empresa</th>
-                        <th scope="col">Responsable</th>
-                        <th scope="col">Monto</th>
-                        <th scope="col">Estado</th>
-                        <th scope="col">Responsable Evaluacion</th>
-                        <th scope="col">Archivo</th>
-                        <th scope="col" style="width: 80px;">Fecha Creacion</th>
-                        <th scope="col" style="width: 80px;">Fecha Cierre</th>
-                        <th scope="col" style="width: 80px;">Ingreso Sitrack</th>
-                        
-                    </tr>
-                </thead>
-        
-                <tbody>
-                        {% for d in data %}
-                    <tr style="text-align: center;">
-                        <td>{{d.id}}</td>
-                        <td>{{d.usuario}}</td>
-                        <td>{{d.dia}}</td>
-                        <td>{{d.viaje_ot}}</td>
-                        <td>{{d.cliente}}</td>
-                        <td>{{d.lugar}}</td>
-                        <td>{{d.tipo_extra_costo}}</td>
-                        <td>{{d.motivo}}</td>
-                        <td>{{d.hora_llegada}}</td>
-                        <td>{{d.dia2}}</td>
-                        <td>{{d.hora_salida}}</td>
-                        <td>{{d.dia3}}</td>
-                        <td>{{d.total_horas}}</td>
-                        <td>{{d.empresa}}</td>
-                        <td>{{d.responsable}}</td>
-                        <td>{{d.monto}}</td>
-                        <td>{{d.estado}}</td>
-                        <td>{{d.responsable_evaluacion}}</td>
-                        <td><a href="{{ url_for('download', nombre_zip=d.nombre_zip) }}" class="btn btn-success btn-sm" title="Descargar" style="font-size: 8px;">Descargar</a></td>
-                        <td>{{d.fecha_creacion}}</td>
-                        <td>{{d.fecha_cierre}}</td>     
-                        <td>{{d.fecha_ingreso_sitrack}}</td>
-                        <!--Logica Para habilitar o desabilitar el boton de edicion dependiendo el perfil-->                                          
+        <div class="card-body">
+            <form action='{{url_for("addUser")}}' method="POST" enctype="multipart/form-data">   
+
+                <div class="row mb-3">
+                    
+                    <div class="col">
+                        {{ form.fecha_inicio.label }} {{ form.fecha_inicio(class="form-control mb-3") }}
+                    </div>
+                    <div class="col">
+                        {{ form.fecha_fin.label }} {{ form.fecha_fin(class="form-control mb-3") }}
+                    </div>
+
+                    <div class="col">
+                        {{ form.cliente.label }} {{ form.cliente(class="form-control mb-3") }}
+                    </div>
+
+                    <div class="col">
+                        {{ form.estado.label }} {{ form.estado(class="form-control mb-3") }}
+                    </div>
+
+                    <div class="col">
+                        {{ form.viaje_ot.label }} {{ form.viaje_ot(class="form-control mb-3") }}
+                    </div>
+
+                    <div class="col">
+                        <button class="btn btn-primary mb-3 mt-4" type="button" onclick="confirmarGuardado()">Buscar</button>
+                    </div>
+
+                </div>
+            </form>
+
+
+            <!-- Tabla -->
+            <div style="overflow-x: auto;" >
+                <table class="table table-bordered" style="font-size: 10px;">
+                    <thead >
+                        <tr style="text-align: center; vertical-align: middle;">
+                            <th class="col-1" style="width: 50px;">ID</th>
+                            <th scope="col" style="width: 50px;">Usuario</th>
+                            <th scope="col" style="width: 80px;">Dia</th>                            
+                            <th scope="col">Viaje/OT</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Agencia</th>
+                            <th scope="col">Tipo Extra Costo</th>
+                            <th scope="col">Motivo</th>
+                            <th scope="col">Hora Llegada</th>
+                            <th scope="col" style="width: 80px;">Dia</th>
+                            <th scope="col">Hora Salida</th>
+                            <th scope="col" style="width: 80px;">Dia</th>
+                            <th scope="col">Total Horas</th>
+                            <th scope="col">Empresa</th>
+                            <th scope="col">Responsable</th>
+                            <th scope="col">Monto</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Responsable Evaluacion</th>
+                            <th scope="col">Archivo</th>
+                            <th scope="col" style="width: 80px;">Fecha Creacion</th>
+                            <th scope="col" style="width: 80px;">Fecha Cierre</th>
+                            <th scope="col" style="width: 80px;">Ingreso Sitrack</th>
+                            
+                        </tr>
+                    </thead>
             
-                    </tr>
-
-                    <!-- modal -->
-
+                    <tbody>
+                            {% for d in data %}
+                        <tr style="text-align: center;">
+                            <td>{{d.id}}</td>
+                            <td>{{d.usuario}}</td>
+                            <td>{{d.fecha_creacion}}</td>
+                            <td>{{d.viaje_ot}}</td>
+                            <td>{{d.cliente}}</td>
+                            <td>{{d.lugar}}</td>
+                            <td>{{d.tipo_extra_costo}}</td>
+                            <td>{{d.motivo}}</td>
+                            <td>{{d.hora_llegada}}</td>
+                            <td>{{d.dia2}}</td>
+                            <td>{{d.hora_salida}}</td>
+                            <td>{{d.dia3}}</td>
+                            <td>{{d.total_horas}}</td>
+                            <td>{{d.empresa}}</td>
+                            <td>{{d.responsable}}</td>
+                            <td>{{d.monto}}</td>
+                            <td>{{d.estado}}</td>
+                            <td>{{d.responsable_evaluacion}}</td>
+                            <td><a href="{{ url_for('download', nombre_zip=d.nombre_zip) }}" class="btn btn-success btn-sm" title="Descargar" style="font-size: 8px;">Descargar</a></td>
+                            <td>{{d.fecha_creacion}}</td>
+                            <td>{{d.fecha_cierre}}</td>     
+                            <td>{{d.fecha_ingreso_sitrack}}</td>
+                            <!--Logica Para habilitar o desabilitar el boton de edicion dependiendo el perfil-->                                          
                 
+                        </tr>
 
-                        {% endfor %}
+                        <!-- modal -->
 
-                </tbody>
-            </table>
+                    
+
+                            {% endfor %}
+
+                    </tbody>
+                </table>
         </div>
     </div>
 </div>

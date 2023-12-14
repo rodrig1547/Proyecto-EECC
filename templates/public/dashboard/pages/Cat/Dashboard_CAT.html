@@ -2,9 +2,9 @@
 <!-- {{  session }} -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
-    function confirmarGuardado() {
+   function confirmarGuardado() {
         // Obtén el valor del campo de archivo
-        var archivoInput = $("input[name='foto']")[0];
+        var archivoInput = $("input[name='nombre_zip']")[0];
         var archivoCargado = archivoInput.files.length > 0;
 
         // Verifica que se haya cargado un archivo
@@ -22,13 +22,14 @@
         }
     }
 
+        
     $(document).ready(function(){
         // Oculta los campos al cargar la página
         $(".extra-costo-fields").hide();
 
         // Muestra u oculta los campos al cambiar la selección
         $("select[name='tipo_extra_costo']").change(function(){
-            if ($(this).val() === "ESTADIA EN BODEGA DE CLIENTE") {
+            if ($(this).val() === "SOBRE ESTADÍA") {
                 $(".extra-costo-fields").show();
             } else {
                 $(".extra-costo-fields").hide();
@@ -50,7 +51,7 @@
     // Resto del código JavaScript...
 </script>
 <script>
-    $(document).ready(function() {
+$(document).ready(function() {
         $('#montoInput').on('input', function() {
             // Obtén el valor del campo de entrada
             let monto = $(this).val();
@@ -64,9 +65,97 @@
             // Establece el valor formateado de vuelta en el campo de entrada
             $(this).val(formattedMonto);
         });
+    });</script>
+<script>
+$(document).ready(function(){
+    // Oculta los campos al cargar la página
+    $(".motivo_ajuste_tarifa").hide();
+
+    // Muestra u oculta los campos al cambiar la selección
+    $("select[name='tipo_extra_costo']").change(function(){
+        // Oculta todos los campos inicialmente
+        $(".motivo_ajuste_tarifa").hide();
+
+        // Verifica el valor seleccionado
+        if ($(this).val() === "AJUSTE TARIFA") {
+            // Muestra solo el campo específico que deseas
+            $(".motivo_ajuste_tarifa").show();
+        }
+    });
+});
+</script>
+<script>
+    $(document).ready(function(){
+        // Oculta los campos al cargar la página
+        $(".motivo_redestinacion").hide();
+    
+        // Muestra u oculta los campos al cambiar la selección
+        $("select[name='tipo_extra_costo']").change(function(){
+            // Oculta todos los campos inicialmente
+            $(".motivo_redestinacion").hide();
+    
+            // Verifica el valor seleccionado
+            if ($(this).val() === "REDESTINACIÓN") {
+                // Muestra solo el campo específico que deseas
+                $(".motivo_redestinacion").show();
+            }
+        });
     });
 </script>
-
+<script>
+    $(document).ready(function(){
+        // Oculta los campos al cargar la página
+        $(".motivo_sobre_estadia").hide();
+    
+        // Muestra u oculta los campos al cambiar la selección
+        $("select[name='tipo_extra_costo']").change(function(){
+            // Oculta todos los campos inicialmente
+            $(".motivo_sobre_estadia").hide();
+    
+            // Verifica el valor seleccionado
+            if ($(this).val() === "SOBRE ESTADÍA") {
+                // Muestra solo el campo específico que deseas
+                $(".motivo_sobre_estadia").show();
+            }
+        });
+    });
+</script>
+<script>
+    $(document).ready(function(){
+        // Oculta los campos al cargar la página
+        $(".motivo_falso_flete").hide();
+    
+        // Muestra u oculta los campos al cambiar la selección
+        $("select[name='tipo_extra_costo']").change(function(){
+            // Oculta todos los campos inicialmente
+            $(".motivo_falso_flete").hide();
+    
+            // Verifica el valor seleccionado
+            if ($(this).val() === "FALSO FLETE") {
+                // Muestra solo el campo específico que deseas
+                $(".motivo_falso_flete").show();
+            }
+        });
+    });
+</script>
+<script>
+    $(document).ready(function(){
+        // Oculta los campos al cargar la página
+        $(".motivo_posicionamiento_vacio").hide();
+    
+        // Muestra u oculta los campos al cambiar la selección
+        $("select[name='tipo_extra_costo']").change(function(){
+            // Oculta todos los campos inicialmente
+            $(".motivo_posicionamiento_vacio").hide();
+    
+            // Verifica el valor seleccionado
+            if ($(this).val() === "POSICIONAMIENTO VACIO") {
+                // Muestra solo el campo específico que deseas
+                $(".motivo_posicionamiento_vacio").show();
+            }
+        });
+    });
+</script>
 </head>
 <body>
 
@@ -76,134 +165,91 @@
                 <form action='{{url_for("addUser")}}' method="POST" enctype="multipart/form-data">   
 
                     <div class="row mb-3">
-                        
                         <div class="col">
-                            <label>Viaje/OT</label>
-                            <input type="text" class="form-control mb-3" name="viaje_ot">
+                            {{ form.viaje_ot.label }} {{ form.viaje_ot(class="form-control mb-3") }}
                         </div>
                         <div class="col">
-                            <label>Cliente</label>
-                            <select class="form-control mb-3" name="cliente">                                                          
-                                <option selected>-----</option>
-                                <option value="AMSA">AMSA</option>
-                                <option value="Alto Norte">Alto Norte</option>
-                                <option value="BHP">BHP</option>
-                                <option value="Codelco">Codelco</option>
-                                <option value="Codesa">Codesa</option>      
-                                <option value="CMDIC">CMDIC</option>
-                                <option value="Engie">Engie</option>
-                                <option value="Finning">Finning</option>                  
-                                <option value="Glencore">Glencore</option>
-                                <option value="Lomas Bayas">Lomas Bayas</option>
-                                <option value="Glencore">Otras Mineras</option>                             
+                            {{ form.cliente.label }} {{ form.cliente(class="form-control mb-3") }}                            
+                        </div>
+
+                        <div class="col">
+                            {{ form.agencia.label }} {{ form.agencia(class="form-control mb-3") }}                            
+                        </div>
+                        
+                        <div class="col">
+                            {{ form.tipo_extra_costo.label }} {{ form.tipo_extra_costo(class="form-control mb-3") }}           
+                        </div>
+
+                        <div class="col motivo_ajuste_tarifa">
+                            {{ form.motivo_ajuste_tarifa.label}} {{ form.motivo_ajuste_tarifa(class="form-control mb-3") }}
+                        </div>
+
+                        <div class="col motivo_redestinacion">
+                            {{ form.motivo_redestinacion.label}} {{ form.motivo_redestinacion(class="form-control mb-3") }}
+                        </div>
+                        
+                        <div class="col motivo_sobre_estadia">
+                            {{ form.motivo_sobre_estadia.label}} {{ form.motivo_sobre_estadia(class="form-control mb-3") }}
+                        </div>
+
+                        <div class="col motivo_falso_flete">
+                            {{ form.motivo_falso_flete.label}} {{ form.motivo_falso_flete(class="form-control mb-3") }}
+                        </div>
+
+                        <div class="col motivo_posicionamiento_vacio">
+                            {{ form.motivo_posicionamiento_vacio.label}} {{ form.motivo_posicionamiento_vacio(class="form-control mb-3") }}
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col extra-costo-fields">
+                                {{ form.hora_llegada.label}} {{ form.hora_llegada(class="form-control mb-3") }}
                                 
-                            </select>                           
-                        </div>
-                    
+                            </div>
+                            
 
-                        <div class="col">
-                            <label>Agencia</label>
-                            <select class="form-control mb-3" name="lugar">
-                                <option selected>-----</option>
-                                <option value="IQQ">ANTUCOYA</option>
-                                <option value="IQQ">ANF</option>
-                                <option value="IQQ">IQQ</option>
-                                <option value="POZ">POZ</option>
-                                <option value="SCL">SCL</option>
-                                <option value="MCC">MCC</option>
-                            </select>                            
-                        </div>
+                            <div class="col extra-costo-fields">
+                                {{ form.dia2.label}} {{ form.dia2(class="form-control mb-3")}}
+                            </div>                           
+                            
 
-                        <div class="col">
-                            <label>Tipo Extra Costo</label>
-                            <select class="form-control mb-3" name="tipo_extra_costo">
-                                <option selected>-----</option>
-                                <option value="AJUSTE TARIFA ADICIONAL POR TRAMO">AJUSTE TARIFA ADICIONAL POR TRAMO</option>                                
-                                <option value="AJUSTE TARIFA DESCUENTO POR TRAMO">AJUSTE TARIFA DESCUENTO POR TRAMO</option>
-                                <option value="CUADRATURA ARRIENDO FIJO">CUADRATURA ARRIENDO FIJO</option>                                                                
-                                <option value="URGENCIA DOBLE CONDUCTOR">URGENCIA DOBLE CONDUCTOR</option>                                
-                                <option value="DIFERENCIA TARIFA EL LIBERTADOR">DIFERENCIA TARIFA EL LIBERTADOR</option>                                
-                                <option value="MOVIMIENTO INTERNO FAENA">MOVIMIENTO INTERNO FAENA</option>                                
-                                <option value="REDESTINACION CLIENTE">REDESTINACION CLIENTE</option>                                
-                                <option value="REDESTINACION SITRANS">REDESTINACION SITRANS</option>                                
-                                <option value="ESTADIA EN BODEGA DE CLIENTE">ESTADIA EN BODEGA DE CLIENTE</option>                      
-                                <option value="FALSO FLETE CLIENTE">FALSO FLETE CLIENTE</option>
-                                <option value="FALSO FLETE OPERACIONAL SITRANS">FALSO FLETE OPERACIONAL SITRANS</option>
-                                <option value="POSICIONAMIENTO VACIO CLIENTE">POSICIONAMIENTO VACIO CLIENTE</option>
-                                <option value="POSICIONAMIENTO VACIO SITRANS">POSICIONAMIENTO VACIO SITRANS</option>
-                                <option value="SIDER">SIDER</option>
-                                <option value="SERVICIO SOBREDIMENSION">SERVICIO SOBREDIMENSION</option>                                
-                            </select>            
-                        </div>
+                                                
+                            <div class="col extra-costo-fields">
+                                {{ form.hora_salida.label}} {{ form.hora_salida(class="form-control mb-3") }}                   
+                            </div>
+                        
+                                
+                            
+                            <div class="col extra-costo-fields">
+                                {{ form.dia3.label}} {{ form.dia3(class="form-control mb-3") }}
+                            </div>
+                        
+                        
+                            <div class="col extra-costo-fields">
+                                {{ form.total_horas.label}} {{ form.total_horas(class="form-control mb-3") }}
+                            </div>
 
-                        <div class="col">
-                            <label>Motivo</label>
-                            <input type="text" class="form-control mb-3" name="motivo">
-                        </div>
-
-                        <div class="col extra-costo-fields">
-                            <label>Hora Llegada</label>
-                            <input type="text" class="form-control mb-3" name="hora_llegada" pattern="^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" title="Por favor, ingrese una hora válida en formato hh:mm">
-
-                            <!--<input type="text" class="form-control mb-3" name="hora_llegada">>-->
-                        </div>
-
-                        <div class="col extra-costo-fields">
-                            <label>Dia</label>
-                            <input type="text" class="form-control mb-3" name="dia2" pattern="\d{2}-\d{2}-\d{4}" title="Ingrese una fecha válida en formato dd-mm-yyyy">
-                        </div>                           
-                    </div>
-
-                    <div class="row mb-3">                        
-                        <div class="col extra-costo-fields">
-                            <label>Hora de Salida</label>    
-                            <input type="text" class="form-control mb-3" name="hora_salida" pattern="^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" title="Por favor, ingrese una hora válida en formato hh:mm">
-
-                        </div>
-
-                        <div class="col extra-costo-fields">
-                            <label>Dia</label>
-                            <input type="text" class="form-control mb-3" name="dia3" pattern="\d{2}-\d{2}-\d{4}" title="Ingrese una fecha válida en formato dd-mm-yyyy">
-                        </div>
-
-                        <div class="col extra-costo-fields">
-                            <label>Total Horas</label>
-                            <input type="text" class="form-control mb-3" name="total_horas">
-                        </div>
-
-                        <div class="col">
-                            <label>Empresa</label>
-                            <input type="text" class="form-control mb-3" name="empresa">
-                        </div>
-
-                        <div class="col">
-                            <label>Responsable</label>
-                            <select class="form-control mb-3" name="responsable">
-                                <option selected>-----</option>
-                                <option value="Cliente">Cliente</option>
-                                <option value="Mintral">Mintral</option>     
-                            </select>                    
-                        </div>
-
-                        <div class="col">
-                            <label>Monto</label>
-                            <input type="text" class="form-control mb-3" name="monto" id="montoInput"> 
-                        </div>
-                        <!--Estado depende del perfil de usuario--> 
-
-                        <div class="col">
-                            <label for="foto">Adjuntar Archivo</label>
-                            <input type="file" name="foto" accept=".rar, .zip" required>
-                        </div>
-
-
-                        <div class="col">
-                            <button class="btn btn-primary mb-3 mt-4" type="button" onclick="confirmarGuardado()">Guardar</button>
-                        </div>
+                            <div class="col">
+                                {{ form.empresa.label}} {{ form.empresa(class="form-control mb-3") }}
+                            </div>
 
                         
+                            <div class="col montoInput">
+                                {{ form.monto.label}} {{ form.monto(class="form-control mb-3") }}
+                            </div>
+                        
+                            <!--Estado depende del perfil de usuario--> 
 
-                    </div>
+                            <div class="col">
+                                {{ form.nombre_zip.label}} {{ form.nombre_zip(class="form-control mb-3") }}
+                            </div>
+                            
+
+                            {{ form.hidden_tag() }}
+                            <div class="col">
+                                {{ form.submit.label}} {{ form.submit(class="form-control mb-3") }}
+                            </div>
+
+                        </div>
 
 
 
@@ -212,7 +258,7 @@
 
                 <!-- Tabla -->
             <div style="overflow-x: auto;" >
-                <table class="table table-bordered" style="font-size: 10px;">
+                <table class="table table-bordered" style="font-size: 10px; text-align: center;">
                     <thead>
                         <tr>
                             <th class="col-1" style="width: 2%;">ID</th>
@@ -229,11 +275,10 @@
                             <th scope="col" style="width: 5%">Dia</th>
                             <th scope="col" style="width: 5%">Total Horas</th>
                             <th scope="col" style="width: 5%">Empresa</th>
-                            <th scope="col" style="width: 5%">Responsable</th>
                             <th scope="col" style="width: 5%">Monto</th>
                             <th scope="col" style="width: 5%">Estado</th>
-                            <th scope="col" style="width: 5%">Archivo</th>
-                            <th scope="col" style="width: 5%">Delete</th>
+                            <th scope="col" style="width: 5%">Respaldo</th>
+                            <th scope="col" style="width: 5%">Eliminar Registro</th>
                         </tr>
                     </thead>
             </div>
@@ -246,7 +291,7 @@
                             <td>{{d.fecha_creacion}}</td>
                             <td>{{d.viaje_ot}}</td>
                             <td>{{d.cliente}}</td>
-                            <td>{{d.lugar}}</td>
+                            <td>{{d.agencia}}</td>
                             <td>{{d.tipo_extra_costo}}</td>
                             <td>{{d.motivo}}</td>
                             <td>{{d.hora_llegada}}</td>
@@ -255,11 +300,10 @@
                             <td>{{d.dia3}}</td>
                             <td>{{d.total_horas}}</td>
                             <td>{{d.empresa}}</td>
-                            <td>{{d.responsable}}</td>
                             <td>{{d.monto}}</td>
                             <td>{{d.estado}}</td>
                             <td><a href="{{ url_for('download', nombre_zip=d.nombre_zip) }}" class="btn btn-success btn-sm" title="Descargar" style="font-size: 10px;">Descargar</a></td>  
-                            <td><a href="#" class="btn btn-danger btn-sm" onclick="confirmarEliminar('{{ url_for('delete', id=d.id, estado=d.estado) }}')" style="font-size: 10px;">Delete</a></td>
+                            <td><a href="#" class="btn btn-danger btn-sm" onclick="confirmarEliminar('{{ url_for('delete', id=d.id, estado=d.estado) }}')" style="font-size: 10px;">Eliminar</a></td>
                                 
                         </tr>
 
