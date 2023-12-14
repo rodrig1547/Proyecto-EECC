@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, FileField, DateField, TimeField
-from wtforms.validators import InputRequired, Length
+from wtforms.validators import InputRequired, Length, Optional
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 
 
@@ -47,7 +47,7 @@ class CATForm(FlaskForm):
     motivo_ajuste_tarifa = SelectField('Motivo', choices=[('','-----'),
                                                           ('DESCUENTA TARIFA', 'DESCUENTA TARIFA'),
                                                             ('AUMENTO TARIFA', 'AUMENTO TARIFA'),
-                                                            ('EL LIBERTADOR', 'EL LIBERTADOR')])
+                                                            ('EL LIBERTADOR', 'EL LIBERTADOR')], validators=[Optional()])
     motivo_redestinacion = SelectField('Motivo', choices=[('','-----'),
                                                           ('POR CUENTA DE MINTRAL', 'POR CUENTA DE MINTRAL' ),  
                                                             ('POR CUENTA DE CLIENTE', 'POR CUENTA DE CLIENTE' ),
@@ -68,11 +68,11 @@ class CATForm(FlaskForm):
                                                             ('POR CUENTA DE CLIENTE', 'POR CUENTA DE CLIENTE'),
                                                             ])
     
-    hora_llegada = TimeField('Hora de Llegada', validators=[InputRequired()], render_kw={"class": "form-control mb-3"})
+    hora_llegada = TimeField('Hora de Llegada', validators=[Optional()], render_kw={"class": "form-control mb-3"}, default='')
 
-    dia2 = DateField('Dia', validators=[InputRequired()], render_kw={"class": "form-control mb-3"}) 
-    hora_salida = TimeField('Hora de Llegada', validators=[InputRequired()], render_kw={"class": "form-control mb-3"})
-    dia3 = DateField('Dia', validators=[InputRequired()], render_kw={"class": "form-control mb-3"})
+    dia2 = DateField('Dia', validators=[Optional()], render_kw={"class": "form-control mb-3"}) 
+    hora_salida = TimeField('Hora de Llegada', validators=[Optional()], render_kw={"class": "form-control mb-3"})
+    dia3 = DateField('Dia', validators=[Optional()], render_kw={"class": "form-control mb-3"})
     total_horas = StringField('Total Horas')
     empresa = SelectField('Empresa', choices=[('','-----'),
                                                                   ('LIBERTADOR', 'LIBERTADOR'),
@@ -84,8 +84,8 @@ class CATForm(FlaskForm):
 
 
 class historialForm(FlaskForm):
-      fecha_inicio = DateField('Dia', render_kw={"class": "form-control mb-3"}) 
-      fecha_fin = DateField('Dia', render_kw={"class": "form-control mb-3"}) 
+      fecha_inicio = DateField('Dia', render_kw={"class": "form-control mb-3"}, validators=[Optional()]) 
+      fecha_fin = DateField('Dia', render_kw={"class": "form-control mb-3"}, validators=[Optional()]) 
       cliente = SelectField('Cliente', choices=[('','-----'),
                                               ('AMSA', 'AMSA'), 
                                               ('Alto Norte', 'Alto Norte'), 
@@ -97,15 +97,16 @@ class historialForm(FlaskForm):
                                               ('Finning', 'Finning'), 
                                               ('Glencore', 'Glencore'), 
                                               ('Lomas Bayas', 'Lomas Bayas'), 
-                                              ])
+                                              ]
+                                              , validators=[Optional()] )
       estado = SelectField('Estado', choices=[('','-----'),
                                               ('Aprobado', 'Aprobado'), 
                                               ('Rechazado', 'Rechazado'), 
                                               ('Ingresado Sitrack', 'Ingresado Sitrack'), 
                                               ('No ingresado Sitrack	', 'No ingresado Sitrack	'),  
-                                              ])
+                                              ] , validators=[Optional()])
       viaje_ot = StringField('Viaje/OT', validators
-                        =[Length(min=6, max=7) ])
+                        =[Length(min=6, max=7), Optional() ])
       
       submit = SubmitField('Buscar')
 

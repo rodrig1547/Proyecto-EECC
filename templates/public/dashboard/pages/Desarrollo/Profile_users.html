@@ -1,0 +1,43 @@
+{% extends 'public/dashboard/home_desarrollo.html' %}
+{% block title %}Perfil | {{ dataUser.nombre }} {% endblock %}
+
+{% block body %}
+<!-- {{  session }} -->
+
+<div class="row justify-content-md-center mb-5">
+
+    <div class="col-md-10 cajaLogin styFormDashboard">
+        <h2 class="text-center titleDashboard mt-3">Editar Usuario <hr> </h2>
+            <form action='{{url_for("actualizarPerfil")}}' method="POST" autocomplete="off">
+           
+            
+
+            <div class="row">
+                
+                <div class="col-md-6">
+                    <label for="Password" class="form-label mt-3" style="color:black;">Correo Electronico</label>
+                    <input type="email" name="correo" class="form-control">
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="Password" class="form-label mt-3" style="color:crimson;">Nueva Password</label>
+                    <input type="password" name="password" class="form-control">
+                </div>
+
+                <div class="col-md-6">
+                    <label for="repite_password" class="form-label mt-3" style="color:crimson;">Repetir Password</label>
+                    <input type="password" name="repite_password" class="form-control">
+                </div>
+
+            </div>
+
+            <div class="row text-center justify-content-md-center mt-4">
+                <div class="col-md-12 mt-3 mb-3">
+                    <button type="submit" class="btn btn-primary btn-send">Guardar Cambios</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

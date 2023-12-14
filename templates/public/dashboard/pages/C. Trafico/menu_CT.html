@@ -1,24 +1,14 @@
 <header class="header">
-  <a href="#" class="logo">
+  <a href="./" class="logo">
     <img src="{{url_for('static', filename ='assets/imgs/logo.png') }}" alt="Logo">
   </a>
   <input class="menu-btn" type="checkbox" id="menu-btn"/>
   <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
   <ul class="menu">
     <li>
-      <a href="{{ url_for('editProfile')}}">
+      <a href="{{ url_for('editProfile') }}">
         <i class="bi bi-person-circle"></i>
         {{ dataLogin.nombre }}
-      </a>
-    </li>
-    <li>
-      <a href="{{ url_for('AdministrarUsuarios') }}">
-        Crear Cuenta
-      </a>
-    </li>
-    <li>
-      <a href="{{ url_for('editProfileUsers') }}">
-        Administrar Usuario
       </a>
     </li>
     <li>

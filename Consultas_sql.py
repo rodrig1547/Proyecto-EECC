@@ -17,22 +17,50 @@ def mostrarRegistros(perfil_usuario, cliente = None):
     cursor.close() # Cerrando Conexion a la BD
     return insertObject
 
-def mostrarHistorial(cliente = None):
-    conexion_MySQLdb = connectionBD() #creando mi instancia a la conexion de BD
+from datetime import datetime
+
+def mostrarHistorial(dia1=None, dia2=None, cliente=None, estado=None, viaje_ot=None):
+    conexion_MySQLdb = connectionBD()  # Creando mi instancia a la conexión de BD
     cursor = conexion_MySQLdb.cursor()
-    if cliente is None:
-        cursor.execute(f"SELECT * FROM eecc Where estado ='Aprobado' OR estado = 'Rechazado' OR estado = 'Ingresado Sitrack' OR estado = 'No ingresado Sitrack' ORDER BY id DESC")
-    else: 
-        cursor.execute(f"SELECT * FROM eecc Where (estado ='Aprobado' OR estado = 'Rechazado' OR estado = 'Ingresado Sitrack' OR estado = 'No ingresado Sitrack') and cliente = '{cliente}'  ORDER BY id DESC")
-        print (cliente)
+
+    # Construir la parte de la consulta con los filtros proporcionados
+    where_conditions = []
+
+    if dia1:
+        where_conditions.append(f"fecha_creacion >= '{dia1}'")
+
+    if dia2:
+        where_conditions.append(f"fecha_creacion <= '{dia2}'")
+
+    if cliente:
+        where_conditions.append(f"cliente = '{cliente}'")
+
+    if estado:
+        where_conditions.append(f"estado = '{estado}'")
+
+    # Si se proporciona el parámetro viaje_ot, ignorar todos los demás filtros
+    if viaje_ot:
+        cursor.execute(f"SELECT * FROM eecc WHERE viaje_ot = '{viaje_ot}' ORDER BY id DESC")
+    else:
+        # Si no se proporciona ningún filtro, mostrar todos los registros
+        if not where_conditions :
+            cursor.execute(f"SELECT * FROM eecc WHERE {(datetime.now()).strftime('%d-%m-%Y')}<=30 ORDER BY id DESC")
+        else:
+            # Construir la consulta completa con los filtros
+            where_clause = " AND ".join(where_conditions)
+            cursor.execute(f"SELECT * FROM eecc WHERE {where_clause} ORDER BY id DESC")
+
     myresult = cursor.fetchall()
-    #Convertir los datos a diccionario
+
+    # Convertir los datos a diccionario
     insertObject = []
     columnNames = [column[0] for column in cursor.description]
     for record in myresult:
         insertObject.append(dict(zip(columnNames, record)))
-    cursor.close() # Cerrando Conexion a la BD
+
+    cursor.close()  # Cerrando conexión a la BD
     return insertObject
+
 
 def mostrarhistorico(fecha_inicio, fecha_fin):
     conexion_MySQLdb = connectionBD() #creando mi instancia a la conexion de BD

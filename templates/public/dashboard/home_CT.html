@@ -35,11 +35,12 @@
 <body>
 
   <!---Include del menu Horizontal-->
-  {% include 'public/dashboard/pages/Desarrollo/menu_desarrollo.html' %}
+  {% include 'public/dashboard/pages/C. Trafico/menu_CT.html' %}
 
   <main class="content-wrapper mt-5" style="margin-top:70px !important;">
       {% block body %}
 
+      {% include 'public/dashboard/pages/C. Trafico/historial_CT.html' %}
 
 
       {% include 'public/dashboard/pages/alerts.html' %}

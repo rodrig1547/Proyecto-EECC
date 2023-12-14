@@ -32,7 +32,9 @@ def loginUser():
         #Perfil Sistemas
         elif perfil_usuario == 3:
             return render_template('public/dashboard/home_Sistemas.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
-            
+        elif perfil_usuario == 99:
+            return redirect(url_for('historial'))
+
     else:
         msg = ''
         if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
@@ -58,12 +60,8 @@ def loginUser():
                     session['create_at']        = account['create_at']
                     session['agencia_financiera']     = account['agencia_financiera']
                     
-                      # Determinar la ruta de inicio basada en el perfil de usuario
-
                     msg = "Ha iniciado sesión correctamente."
                     return redirect(url_for('loginUser'))  # Redirigir al mismo endpoint para gestionar la redirección basada en el perfil
-                   
-
 
                 else:
                     msg = 'Datos incorrectos, por favor verfique!'
@@ -144,9 +142,6 @@ def actualizarMiPerfil(id):
                     msg ='Las claves no coinciden'
                     return render_template('public/dashboard/home_Sistemas.html',  msjAlert = msg, typeAlert=0, dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
 
-    
-
-
                 else:
                     nueva_password = generate_password_hash(password, method='pbkdf2:sha256')
                     conexion_MySQLdb = connectionBD()
@@ -166,6 +161,9 @@ def actualizarMiPerfil(id):
                         return render_template('public/dashboard/home_Admin.html', msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
                     elif session['tipo_user'] == 3:
                         return render_template('public/dashboard/home_Sistemas.html',  msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
+                    elif session['tipo_user'] == 1:
+                        return render_template('public/dashboard/home_Admin.html',  msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario())
+
 
             
         if session['tipo_user'] == 100:
@@ -174,6 +172,44 @@ def actualizarMiPerfil(id):
             return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))   
         elif session['tipo_user'] == 3: 
             return render_template('public/dashboard/home_Sistemas.html', dataLogin=dataLoginSesion(), data = mostrarRegistros('Aprobado'))
+        elif session['tipo_user'] == 1:
+            return render_template('public/dashboard/home_Admin.html',  msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario())
+
+
+
+@app.route('/actualizar-perfil', methods=['POST'])
+def actualizarPerfil():
+    if 'conectado' in session:
+        msg = ''
+        if request.method == 'POST':
+            if(request.form['password']):
+                password         = request.form['password'] 
+                repite_password  = request.form['repite_password'] 
+                
+                if (password != repite_password) and (session['tipo_user'] == 1):
+                    msg ='Las claves no coinciden'
+                    return render_template('public/dashboard/home_Admin.html', msjAlert = msg, typeAlert=0, dataLogin = dataLoginSesion(), data=mostrarRegistros('Pendiente Aprobacion'))
+                
+                else:
+                    nueva_password = generate_password_hash(password, method='pbkdf2:sha256')
+                    conexion_MySQLdb = connectionBD()
+                    cur = conexion_MySQLdb.cursor()
+                    cur.execute("""
+                        UPDATE login_python 
+                        SET                              
+                            password = %s
+                        WHERE email = %s""", (nueva_password, request.form['correo']))
+                    conexion_MySQLdb.commit()
+                    cur.close() #Cerrando conexion SQL
+                    conexion_MySQLdb.close() #cerrando conexion de la BD
+                    msg = 'Perfil actualizado correctamente'   
+                    
+                    return render_template('public/dashboard/home_Admin.html',  msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario())
+                                
+        
+        return render_template('public/dashboard/home_Admin.html',  msjAlert = msg, typeAlert=1, dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario())
+
+
 
 
 if __name__ == "__main__":
