@@ -76,8 +76,8 @@
                             <td>{{d.estado}}</td>
                             <td><a href="{{ url_for('download', nombre_zip=d.nombre_zip) }}" class="btn btn-success btn-sm" title="Descargar" style="font-size: 8px;">Descargar</a></td>
                             <td><a href="#" onclick="confirmarAprobar('{{ url_for('actualizacion', estado='Aprobado', id= d.id) }}')" class="btn btn-success btn-sm" title="Aprobar" style="font-size: 8px;">A</a>
-                            <a href="#" onclick="confirmarRechazo('{{ url_for('actualizacion', estado= 'Rechazado', id= d.id) }}')"  class="btn btn-danger btn-sm" title="Rechazar" style="font-size: 8px;">R</a></td>
-                                                        
+                                <a href="#" onclick="confirmarRechazo('{{ url_for('actualizacion', estado= 'Rechazado', id= d.id) }}')"  class="btn btn-danger btn-sm" title="Rechazar" style="font-size: 8px;">R</a></td>
+                                                                 
                         </tr>
 
                         <!-- modal -->

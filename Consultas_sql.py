@@ -1,27 +1,28 @@
 from conexionBD import *
-
-#Creando una funcion para obtener la lista de carros.
-def mostrarRegistros(perfil_usuario, cliente = None):
-
-    conexion_MySQLdb = connectionBD() #creando mi instancia a la conexion de BD
-    cursor = conexion_MySQLdb.cursor()
-    if cliente is not None:
-        cursor.execute(f"SELECT * FROM eecc Where estado = '{perfil_usuario}' and cliente = '{cliente}'  ORDER BY id DESC")
-    else: cursor.execute(f"SELECT * FROM eecc Where estado = '{perfil_usuario}'  ORDER BY id DESC")
-    myresult = cursor.fetchall()
-    #Convertir los datos a diccionario
-    insertObject = []
-    columnNames = [column[0] for column in cursor.description]
-    for record in myresult:
-        insertObject.append(dict(zip(columnNames, record)))
-    cursor.close() # Cerrando Conexion a la BD
-    return insertObject
-
 from datetime import datetime
 
+
+def mostrarRegistros(perfil_usuario, cliente = None):
+    try:
+        conexion_SQLServer = connectionBD()
+        cursor = conexion_SQLServer.cursor()
+        if cliente is not None:
+            cursor.execute("SELECT * FROM extracostos WHERE estado = ? AND cliente = ? ORDER BY id DESC", (perfil_usuario, cliente))
+        else:
+            cursor.execute("SELECT * FROM extracostos WHERE estado = ? ORDER BY id DESC", (perfil_usuario,))
+        myresult = cursor.fetchall()
+        column_names = [column[0] for column in cursor.description]
+        insert_object = [dict(zip(column_names, record)) for record in myresult]
+        return insert_object
+    except Exception as e:
+        # Manejar la excepción según tus necesidades
+        print(f"Error: {e}")
+        return None
+import pyodbc
+
 def mostrarHistorial(dia1=None, dia2=None, cliente=None, estado=None, viaje_ot=None):
-    conexion_MySQLdb = connectionBD()  # Creando mi instancia a la conexión de BD
-    cursor = conexion_MySQLdb.cursor()
+    conexion_SQLServer = connectionBD()  # Creando mi instancia a la conexión de BD
+    cursor = conexion_SQLServer.cursor()
 
     # Construir la parte de la consulta con los filtros proporcionados
     where_conditions = []
@@ -40,15 +41,15 @@ def mostrarHistorial(dia1=None, dia2=None, cliente=None, estado=None, viaje_ot=N
 
     # Si se proporciona el parámetro viaje_ot, ignorar todos los demás filtros
     if viaje_ot:
-        cursor.execute(f"SELECT * FROM eecc WHERE viaje_ot = '{viaje_ot}' ORDER BY id DESC")
+        cursor.execute(f"SELECT * FROM extracostos WHERE viaje_ot = '{viaje_ot}' ORDER BY id DESC")
     else:
         # Si no se proporciona ningún filtro, mostrar todos los registros
-        if not where_conditions :
-            cursor.execute(f"SELECT * FROM eecc WHERE {(datetime.now()).strftime('%d-%m-%Y')}<=30 ORDER BY id DESC")
+        if not where_conditions:
+            cursor.execute(f"SELECT * FROM extracostos WHERE ({(datetime.now()).strftime('%d-%m-%Y')} <= 30)  and (estado IN ('Aprobado', 'Rechazado', 'Ingresado Sitrack', 'No ingresado Sitrack')) ORDER BY id DESC")
         else:
             # Construir la consulta completa con los filtros
             where_clause = " AND ".join(where_conditions)
-            cursor.execute(f"SELECT * FROM eecc WHERE {where_clause} ORDER BY id DESC")
+            cursor.execute(f"SELECT * FROM extracostos WHERE {where_clause} ORDER BY id DESC")
 
     myresult = cursor.fetchall()
 
@@ -61,75 +62,159 @@ def mostrarHistorial(dia1=None, dia2=None, cliente=None, estado=None, viaje_ot=N
     cursor.close()  # Cerrando conexión a la BD
     return insertObject
 
+def addUserbd(data):
+    conexion_SQLServer = connectionBD()
+    
+    if conexion_SQLServer:
+        try:
+            cursor = conexion_SQLServer.cursor()
 
-def mostrarhistorico(fecha_inicio, fecha_fin):
-    conexion_MySQLdb = connectionBD() #creando mi instancia a la conexion de BD
-    cursor = conexion_MySQLdb.cursor()
-    cursor.execute(f"SELECT * FROM eecc WHERE STR_TO_DATE(dia, '%d-%m-%Y') AND dia >= '{fecha_inicio}' AND dia <= '{fecha_fin}' ORDER BY id DESC")
+            columns = ', '.join([f'[{column}]' for column in data.keys()])
+            placeholders = ', '.join(['?'] * len(data))
+            
+            # Asegúrate de tener la consulta SQL adecuada aquí
+            sql = f"INSERT INTO extracostos ({columns}) VALUES ({placeholders})"
+            
+            values = list(data.values())
+            
+            cursor.execute(sql, values)
+            conexion_SQLServer.commit()
+            cursor.close()  # Cerrando el cursor
+        except Exception as e:
+            print(f"Error al insertar datos en la base de datos: {str(e)}")
+        finally:
+            conexion_SQLServer.close()  # Cerrando la conexión a la BD
+    else:
+        print("No se pudo establecer conexión con la base de datos.")
 
+def deleterow(id):
+    conexion_SQLServer = connectionBD()
 
-    myresult = cursor.fetchall()
-    #Convertir los datos a diccionario
-    insertObject = []
-    columnNames = [column[0] for column in cursor.description]
-    for record in myresult:
-        insertObject.append(dict(zip(columnNames, record)))
-    cursor.close() # Cerrando Conexion a la BD
-    return insertObject
+    if conexion_SQLServer:
+        try:
+            cursor = conexion_SQLServer.cursor()
 
+            sql = "DELETE FROM extracostos WHERE id = ?"
+            cursor.execute(sql, id)
+            conexion_SQLServer.commit()
+            cursor.close()  # Cerrando el cursor
+        except Exception as e:
+            print(f"Error al eliminar registro en la base de datos: {str(e)}")
+        finally:
+            conexion_SQLServer.close()  # Cerrando la conexión a la BD
+    else:
+        print("No se pudo establecer conexión con la base de datos.")
 
-def addUserbd(columns, placeholders, values):
-    conexion_MySQLdb = connectionBD()
-    cursor = conexion_MySQLdb.cursor()
-    sql = f"INSERT INTO eecc ({columns}) VALUES ({placeholders})"
-    cursor.execute(sql, values)
-    conexion_MySQLdb.commit()
-    cursor.close()
-
-def deleterow(row):
-    conexion_MySQLdb = connectionBD()
-    cursor = conexion_MySQLdb.cursor()
-    sql = "DELETE FROM eecc WHERE id=%s"
-    cursor.execute(sql, row)
-    conexion_MySQLdb.commit()
-    cursor.close()
-
-def editRow(values):
-    conexion_MySQLdb = connectionBD()
-    cursor = conexion_MySQLdb.cursor()
-    sql = "UPDATE eecc SET dia = %s, viaje_ot= %s, lugar = %s, tipo_extra_costo = %s, motivo = %s,\
-               hora_llegada = %s, dia2 = %s, hora_salida = %s, dia3 = %s, total_horas = %s, empresa = %s, responsable = %s, \
-               monto = %s, estado = %s, responsable_evaluacion = %s  WHERE id = %s"
-    cursor.execute(sql, values)
-    conexion_MySQLdb.commit()
-    cursor.close()
 
 def actualizacionEstado(values):
-    conexion_MySQLdb = connectionBD()
-    cursor = conexion_MySQLdb.cursor()
-    sql = "UPDATE eecc SET estado = %s, responsable_evaluacion = %s, fecha_cierre = %s  WHERE id = %s"
-    cursor.execute(sql, values)
-    conexion_MySQLdb.commit()
-    cursor.close()
+    conexion_SQLServer = connectionBD()
+
+    if conexion_SQLServer:
+        try:
+            cursor = conexion_SQLServer.cursor()
+
+            sql = """
+                UPDATE extracostos
+                SET
+                    estado = ?,
+                    responsable_evaluacion = ?,
+                    fecha_cierre = ?
+                WHERE id = ?
+            """
+            
+            # Reemplaza "nombre_de_tabla" con el nombre real de tu tabla en SQL Server
+            cursor.execute(sql, values)
+            
+            conexion_SQLServer.commit()
+            cursor.close()  # Cerrando el cursor
+        except Exception as e:
+            print(f"Error al actualizar el estado en la base de datos: {str(e)}")
+        finally:
+            conexion_SQLServer.close()  # Cerrando la conexión a la BD
+    else:
+        print("No se pudo establecer conexión con la base de datos.")
+
 
 
 def actualizacionEstadoSistemas(values):
-    conexion_MySQLdb = connectionBD()
-    cursor = conexion_MySQLdb.cursor()
-    sql = "UPDATE eecc SET estado = %s, responsable_evaluacion = %s, fecha_ingreso_sitrack = %s  WHERE id = %s"
-    cursor.execute(sql, values)
-    conexion_MySQLdb.commit()
-    cursor.close()
+    conexion_SQLServer = connectionBD()
+
+    if conexion_SQLServer:
+        try:
+            cursor = conexion_SQLServer.cursor()
+
+            sql = """
+                UPDATE extracostos
+                SET
+                    estado = ?,
+                    responsable_evaluacion = ?,
+                    fecha_ingreso_sitrack = ?
+                WHERE id = ?
+            """
+            
+            # Reemplaza "nombre_de_tabla" con el nombre real de tu tabla en SQL Server
+            cursor.execute(sql, values)
+            
+            conexion_SQLServer.commit()
+            cursor.close()  # Cerrando el cursor
+        except Exception as e:
+            print(f"Error al actualizar el estado en la base de datos: {str(e)}")
+        finally:
+            conexion_SQLServer.close()  # Cerrando la conexión a la BD
+    else:
+        print("No se pudo establecer conexión con la base de datos.")
 
 def nombre_descarga(nombre_zip):
-    conexion_MySQLdb = connectionBD()
-    cursor = conexion_MySQLdb.cursor()
-    cursor.execute(f"SELECT viaje_ot FROM eecc WHERE nombre_zip = '{nombre_zip}'")
-    myresult = cursor.fetchall()
-    #Convertir los datos a diccionario
-    insertObject = []
-    columnNames = [column[0] for column in cursor.description]
-    for record in myresult:
-        insertObject.append(dict(zip(columnNames, record)))
-    cursor.close() # Cerrando Conexion a la BD
-    return insertObject
+    conexion_SQLServer = connectionBD()
+    
+    if conexion_SQLServer:
+        try:
+            cursor = conexion_SQLServer.cursor()
+
+            # Utiliza parámetros para evitar SQL injection
+            cursor.execute("SELECT viaje_ot FROM extracostos WHERE nombre_zip = ?", nombre_zip)
+            
+            myresult = cursor.fetchall()
+
+            # Convertir los datos a un diccionario
+            insertObject = []
+            columnNames = [column[0] for column in cursor.description]
+            for record in myresult:
+                insertObject.append(dict(zip(columnNames, record)))
+
+            cursor.close()  # Cerrando conexión a la BD
+            return insertObject
+        except Exception as e:
+            print(f"Error al insertar datos en la base de datos: {str(e)}")
+        finally:
+            conexion_SQLServer.close()  # Cerrando la conexión a la BD
+    else:
+        print("No se pudo establecer conexión con la base de datos.")
+
+
+def actualizar_password_sql_server(nueva_password, id):
+    conexion_SQLServer = connectionBD()
+
+    if conexion_SQLServer:
+        try:
+            cursor = conexion_SQLServer.cursor()
+
+            sql = """
+                UPDATE login_python  
+                SET                              
+                    password = ?
+                WHERE id = ?
+            """
+            
+            # Reemplaza "nombre_de_tabla" con el nombre real de tu tabla en SQL Server
+            cursor.execute(sql, nueva_password, id)
+            
+            conexion_SQLServer.commit()
+            cursor.close()  # Cerrando el cursor
+        except Exception as e:
+            print(f"Error al actualizar la contraseña en la base de datos: {str(e)}")
+        finally:
+            conexion_SQLServer.close()  # Cerrando la conexión a la BD
+    else:
+        print("No se pudo establecer conexión con la base de datos.")
+

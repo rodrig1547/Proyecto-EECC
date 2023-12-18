@@ -19,22 +19,31 @@ def dataLoginSesion():
         "emailLogin"          :session['email'],
         "perfil_usuario"                :session['perfil_usuario'],
         "minera"                      :session['minera'],
-        "create_at"                 :session['create_at'],
-        "agencia_financiera"  :session['agencia_financiera']
-    }
+        "create_at"                 :session['create_at']
+        }
     return inforLogin
 
 def dataPerfilUsuario():
-    conexion_MySQLdb = connectionBD() 
-    mycursor       = conexion_MySQLdb.cursor(dictionary=True)
-    idUser         = session['id']
+    conexion_SQLdb = connectionBD()
     
-    querySQL  = ("SELECT * FROM login_python WHERE id='%s'" % (idUser,))
-    mycursor.execute(querySQL)
-    datosUsuario = mycursor.fetchone() 
-    mycursor.close() #cerrrando conexion SQL
-    conexion_MySQLdb.close() #cerrando conexion de la BD
-    return datosUsuario
+    if conexion_SQLdb:
+        try:
+            cursor = conexion_SQLdb.cursor()
+            idUser = session['id']            
+            querySQL = "SELECT * FROM login_python WHERE id = ?"            
+            cursor.execute(querySQL, [idUser])            
+            columns = [column[0] for column in cursor.description]            
+            datosUsuario = [dict(zip(columns, row)) for row in cursor.fetchall()][0]             
+            return datosUsuario
+        except Exception as e:
+            print(f"Error al obtener datos de usuario: {str(e)}")
+            return None
+        finally:
+            cursor.close()  # Cerrando el cursor
+            conexion_SQLdb.close()  # Cerrando la conexión a la BD
+    else:
+        print("No se pudo establecer conexión con la base de datos.")
+        return None
 
 
 

@@ -29,16 +29,17 @@ def inicio():
     if 'conectado' in session: 
             perfil_usuario = session['tipo_user']
     if 'conectado' in session and perfil_usuario == 100:
+        print ('Ingresando a /home perfil Cat 100')
         form = CATForm()
         return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion'), form = form)
+    elif 'conectado' in session and perfil_usuario == 1:
+        return (render_template('public/dashboard/home_desarrollo.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario()))
     elif 'conectado' in session and perfil_usuario == 2:
         return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
     elif 'conectado' in session and perfil_usuario == 3:
         return render_template('public/dashboard/home_Sistemas.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
     elif 'conectado' in session and perfil_usuario == 99:
         return redirect(url_for('historial'))
-    elif 'conectado' in session and perfil_usuario == 100:
-        return render_template('public/dashboard/home_CT.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
     else: 
         return render_template('public/modulo_login/index.html')
 
@@ -70,7 +71,7 @@ def historial():
     form = historialForm(request.form)
     print (form.data)
 
-    if form.validate_on_submit() and perfil_usuario in [100,2,99] :
+    if form.validate_on_submit() and perfil_usuario in [2,3,99,100] :
         fecha_inicio_value = form.fecha_inicio.data.strftime('%d-%m-%Y') if form.fecha_inicio.data is not None else None
         fecha_fin_value = form.fecha_fin.data.strftime('%d-%m-%Y') if form.fecha_fin.data is not None else None
         cliente_value = form.cliente.data
@@ -94,21 +95,28 @@ def historial():
                                                                                                                                                                        cliente_value,
                                                                                                                                                                        estado_value,
                                                                                                                                                                        viaje_ot_value), form = form)
-    if 'conectado' in session and perfil_usuario in [2,100,99]:
+        if perfil_usuario == 3:
+            return render_template('public/dashboard/pages/Sistemas/historial_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(fecha_inicio_value,
+                                                                                                                                                                       fecha_fin_value,
+                                                                                                                                                                       cliente_value,
+                                                                                                                                                                       estado_value,
+                                                                                                                                                                       viaje_ot_value), form = form)
+
+    if 'conectado' in session and perfil_usuario in [2,3,99,100]:
         if perfil_usuario == 100:
             return render_template('public/dashboard/pages/Cat/historial_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
         if perfil_usuario == 2:
             return render_template('public/dashboard/pages/Ad. Contrato/historial_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
         if perfil_usuario == 99:
             return render_template('public/dashboard/pages/C. Trafico/historial_CT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
+        if perfil_usuario == 3:
+            return render_template('public/dashboard/pages/Sistemas/historial_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
             
 
 #Ruta para agregar/guardar registros a EECC
 @app.route('/user', methods=['GET','POST'])
 def addUser(): 
-    print ('q pasooo')
     form = CATForm(request.form)
-
     if form.validate() and dataLoginSesion()["tipoLogin"] == 100: 
         print (form.data)
         file     = request.files.get('nombre_zip') #recibiendo el archivo
@@ -120,6 +128,10 @@ def addUser():
         data['estado'] = 'Pendiente Aprobacion'
         data['fecha_creacion'] = (datetime.now()).strftime('%d-%m-%Y, %H:%M')
         data['motivo'] = data['motivo_ajuste_tarifa'] + data['motivo_redestinacion'] + data['motivo_sobre_estadia'] + data['motivo_falso_flete'] + data['motivo_posicionamiento_vacio']
+        data['fecha_ingreso_sitrack'] = ''
+        data['fecha_ingreso_sitrack'] = ''
+        data['fecha_cierre'] = ''
+        data['responsable_evaluacion'] = ''
         del data['motivo_ajuste_tarifa']
         del data['motivo_redestinacion']
         del data['motivo_sobre_estadia']
@@ -132,13 +144,7 @@ def addUser():
 
         print ('-----------',data)
 
-
-
-    
-        columns = ', '.join([f'`{column}`' for column in data.keys()])
-        placeholders = ', '.join(['%s'] * len(data))
-        values = list(data.values())
-        addUserbd(columns, placeholders, values)
+        addUserbd(data)
         return redirect(url_for('inicio'))
     
     else:
@@ -149,7 +155,7 @@ def addUser():
 #Ruta para ELIMINAR Registros
 @app.route('/delete/<string:id>/<string:estado>')
 def delete(id, estado):
-    if estado == 'Ingreso CAT' and dataLoginSesion()['tipoLogin'] ==100:
+    if estado == 'Pendiente Aprobacion' and dataLoginSesion()['tipoLogin'] ==100:
         data = (id,)
         deleterow(data)
         return redirect(url_for('inicio'))
@@ -157,20 +163,20 @@ def delete(id, estado):
 #Ruta para Descargar Registros de EECC
 @app.route('/download/<string:nombre_zip>', methods=['GET'])
 def download(nombre_zip):
-    if 'conectado' in session:
+    if 'conectado' in session and (session['tipo_user'] in [2,3,99,100]):
         dir = "static/assets/uploads/"
         # Obtener la extensión del archivo original
         _, extension = os.path.splitext(nombre_zip)
         
         # Cambiar el nombre del archivo manteniendo la extensión
-        print(nombre_descarga(nombre_zip))
+        print('--------------',nombre_descarga(nombre_zip), nombre_zip)
         nuevo_nombre = 'Respaldo_viaje/ot_' + str(nombre_descarga(nombre_zip)[0]['viaje_ot']) + extension
         return send_from_directory(dir, nombre_zip, as_attachment=True, download_name = nuevo_nombre)
 
 #Ruta para Aprobar o Rechazar un EECC
 @app.route('/actualizacion/<string:id>/<string:estado>')
 def actualizacion(id, estado):
-    print(f"Received id: {id}, estado: {estado}")
+    print(f"Received id: {id}, estado: {estado} ")
     data = {}
     data['estado'] = estado
     data['responsable_evaluacion'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido'] 
@@ -183,18 +189,18 @@ def actualizacion(id, estado):
     return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
 
 
-#Ruta para Aprobar o Rechazar un EECC
-@app.route('/actualizacion/<string:id>/<string:estado>/<string:responsable>')
-def actualizacionSistemas(id, estado, responsable):
+@app.route('/actualizacionSistemas/<string:id>/<string:estado>')
+def actualizacionSistemas(id, estado):
+    print ('-----------------')
     print(f"Received id: {id}, estado: {estado}")
     data = {}
     data['estado'] = estado
-    data['responsable_evaluacion'] = responsable 
+    data['responsable_evaluacion'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido']  
     data['fecha_ingreso_sitrack'] = (datetime.now()).strftime('%d-%m-%Y, %H:%M') 
     data['id'] = id
     
     values = list(data.values())
-    print (values)
+    print (values, '---------')
     actualizacionEstadoSistemas(values)      
     return render_template('public/dashboard/home_Sistemas.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
 

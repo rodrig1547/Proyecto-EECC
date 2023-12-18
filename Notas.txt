@@ -1,0 +1,12 @@
+Perfil CAT
+
+Al buscar debo filtrar los Pendiente Aprobacion, estan apareciendo al buscar. 
+El cambio de Contraseña debe ser por formulario con token.
+
+Perfil AD 
+
+Cuando aparecen los extra costos, y aprueba o rechaza si rechaza, debe elegir una opcion que permita seleecionar el motivo. Sin embargo si tengo una opcion de revision
+deberia permitir habilitar un boton de editar, de esta forma no lo debe ingresar nuevamente???
+
+Tambien aparece Pendiente Aprobacion en el menu de buscar.
+
