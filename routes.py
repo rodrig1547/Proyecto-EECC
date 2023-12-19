@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, session, request, s
 from funciones import *  #Importando mis Funciones
 from Consultas_sql import *
 from datetime import datetime
-from forms import CATForm, historialForm
+from forms import CATForm, historialForm, cambioPassword,loginUsuario, crearUsuario, ediotarUsuario
 
 
 #Declarando nombre de la aplicación e inicializando, crear la aplicación Flask
@@ -20,7 +20,11 @@ def not_found(error):
     if 'conectado' in session:
         return redirect(url_for('inicio'))
     else:
-        return render_template('public/modulo_login/index.html')
+        form = loginUsuario()
+        return render_template('public/modulo_login/index.html', form = form)
+    
+
+
     
     
 #Creando mi Decorador para el Home
@@ -41,27 +45,29 @@ def inicio():
     elif 'conectado' in session and perfil_usuario == 99:
         return redirect(url_for('historial'))
     else: 
-        return render_template('public/modulo_login/index.html')
+        return redirect(url_for('page_inicio'))
 
 #Ruta para editar el perfil del cliente
 @app.route('/edit-profile', methods=['GET', 'POST'])
 def editProfile():
+    form = cambioPassword(request.form)
     if 'conectado' in session and session['tipo_user'] == 100:
-        return render_template('public/dashboard/pages/Cat/Profile_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
+        return render_template('public/dashboard/pages/Cat/Profile_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form =form)
     elif 'conectado' in session and session['tipo_user'] == 2:
-        return render_template('public/dashboard/pages/Ad. Contrato/Profile_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
+        return render_template('public/dashboard/pages/Ad. Contrato/Profile_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form =form)
     elif 'conectado' in session and session['tipo_user'] == 3:
-        return render_template('public/dashboard/pages/Sistemas/Profile_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
+        return render_template('public/dashboard/pages/Sistemas/Profile_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form =form)
     elif 'conectado' in session and session['tipo_user'] == 1:
-        return render_template('public/dashboard/pages/Desarrollo/Profile_desarrollo.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
+        return render_template('public/dashboard/pages/Desarrollo/Profile_desarrollo.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form =form)
     elif 'conectado' in session and session['tipo_user'] == 99:
-        return render_template('public/dashboard/pages/C. Trafico/Profile_CT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
+        return render_template('public/dashboard/pages/C. Trafico/Profile_CT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form =form)
     return redirect(url_for('inicio'))
 
 @app.route('/edit-profiles-users', methods=['GET', 'POST'])
 def editProfileUsers():
+    form = ediotarUsuario()
     if 'conectado' in session and session['tipo_user'] == 1:
-        return render_template('public/dashboard/pages/Desarrollo/Profile_users.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
+        return render_template('public/dashboard/pages/Desarrollo/Profile_users.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form = form)
     return redirect(url_for('inicio'))     
 
 #Ruta para observar todos los registros, incluyendo Filtros de Busqueda.
@@ -113,7 +119,6 @@ def historial():
             return render_template('public/dashboard/pages/Sistemas/historial_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
             
 
-#Ruta para agregar/guardar registros a EECC
 @app.route('/user', methods=['GET','POST'])
 def addUser(): 
     form = CATForm(request.form)
@@ -207,8 +212,9 @@ def actualizacionSistemas(id, estado):
 @app.route('/Administrar-Usuarios', methods = ['GET', 'POST'])
 def AdministrarUsuarios():
     if 'conectado' in session and session['tipo_user'] == 1:
+        form = crearUsuario()
         print ('Ingreso a  AdministrarUsuarios 1' )
-        return render_template('public/dashboard/pages/Desarrollo/Administrador_Usuarios.html', dataLogin = dataLoginSesion()) 
+        return render_template('public/dashboard/pages/Desarrollo/Administrador_Usuarios.html', dataLogin = dataLoginSesion(), form = form) 
      
 # Cerrar session del usuario
 @app.route('/logout')
@@ -219,4 +225,5 @@ def logout():
     session.pop('id', None)
     session.pop('email', None)
     msgClose ="La sesión fue cerrada correctamente"
-    return render_template('public/modulo_login/index.html', msjAlert = msgClose, typeAlert=1)
+    form = loginUsuario()
+    return render_template('public/modulo_login/index.html', msjAlert = msgClose, typeAlert=1, form = form) 

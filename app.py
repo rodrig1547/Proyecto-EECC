@@ -1,24 +1,28 @@
 #Importando  flask y algunos paquetes
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import date
 from datetime import datetime
 
 from conexionBD import *  #Importando conexion BD
 from funciones import *  #Importando mis Funciones
 from routes import * #Vistas
+from forms import * #Importancion de formularios
 
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
-## Importacion de loggin para registros
-import logging
+import logging ## Importacion de loggin para registros
 
 # Configurar el sistema de logs
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
 
+@app.route('/', methods=['GET', 'POST'])
+def page_inicio():
+    form = loginUsuario()
+    return render_template('public/modulo_login/index.html', form = form)
+
 # Pagina Principal.
 @app.route('/dashboard', methods=['GET', 'POST'])
 def loginUser():
-    conexion_SQLdb = connectionBD()
     app.logger.info(f'Solicitud GET a {request.path} desde {request.remote_addr}')
   
     if 'conectado' in session:
@@ -27,17 +31,14 @@ def loginUser():
         if perfil_usuario in [1,2,3,99,100]:
             return redirect(url_for('inicio'))
     else:
-        msg = ''
-        if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
+        form = loginUsuario(request.form)
+        print (form.validate_on_submit())
+        if form.validate_on_submit():
             email      = str(request.form['email'])
             password   = str(request.form['password'])
             
             # Comprobando si existe una cuenta
-            cursor = conexion_SQLdb.cursor()
-            cursor.execute("SELECT * FROM login WHERE email = ?", [email])
-            columns = [column[0] for column in cursor.description]
-            print (columns)
-            account = [dict(zip(columns, row)) for row in cursor.fetchall()][   0]
+            account = consultaCuentaExistente(email) 
             if account:
                 if check_password_hash(account['password'],password):
                     # Crear datos de sesión, para poder acceder a estos datos en otras rutas 
@@ -52,18 +53,17 @@ def loginUser():
                     session['create_at']        = account['create_at']
                     
                     app.logger.info(f'Usuario autenticado: {session}')
+                    flash('Autenticación exitosa!', 'success')
 
-                    msg = "Ha iniciado sesión correctamente."
                     return redirect(url_for('loginUser'))  # Redirigir al mismo endpoint para gestionar la redirección basada en el perfil
 
                 else:
                     app.logger.info('Usuario no autenticado')
-
-                    msg = 'Datos incorrectos, por favor verfique!'
-                    return render_template('public/modulo_login/index.html', msjAlert = msg, typeAlert=0)
+                    flash('Datos incorrectos, por favor verfique!', 'danger')
+                    return redirect(url_for('page_inicio'))
             else:
-                return render_template('public/modulo_login/index.html', msjAlert = msg, typeAlert=0)
-    return render_template('public/modulo_login/index.html', msjAlert = 'Debe iniciar sesión.', typeAlert=0)
+                return redirect(url_for('page_inicio'))
+    return redirect(url_for('page_inicio'))
 
 #Registrando una cuenta de Usuario
 import pyodbc  # Asegúrate de tener el módulo pyodbc instalado
@@ -73,8 +73,9 @@ def registerUser():
     if 'conectado' in session and session['tipo_user'] == 1:
         msg = ''
         conexion_SQLServer = connectionBD()
-
-        if request.method == 'POST':
+        form = crearUsuario(request.form)
+        print (form.validate_on_submit())
+        if form.validate_on_submit():
             if request.form['perfil_usuario'] == 'Ad. Contrato':
                 tipo_user = 2
             elif request.form['perfil_usuario'] == 'Cat':
@@ -92,20 +93,18 @@ def registerUser():
             repite_password = request.form['repite_password']
             perfil_usuario = request.form['perfil_usuario']
             minera = request.form['minera']
-            create_at = date.today()
+            create_at = date.today().strftime('%d-%m-%Y, %H:%M')
 
             cursor = conexion_SQLServer.cursor()
             cursor.execute('SELECT * FROM login WHERE email = ?', (email,))
             account = cursor.fetchone()
 
             if account:
-                msg = 'Ya existe el Email!'
+                flash ('Ya existe el Email!', 'danger')
             elif password != repite_password:
-                msg = 'Disculpa, las clave no coinciden!'
+                flash ('Disculpa, las claves no coinciden!', 'danger')
             elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-                msg = 'Disculpa, formato de Email incorrecto!'
-            elif not email or not password or not password or not repite_password:
-                msg = 'El formulario no debe estar vacío!'
+                flash ('Disculpa, formato de Email incorrecto!', 'danger')
             else:
                 password_encriptada = generate_password_hash(password, method='pbkdf2:sha256')
                 cursor.execute(
@@ -113,77 +112,67 @@ def registerUser():
                     (tipo_user, nombre, apellido, email, password_encriptada, perfil_usuario, minera, create_at)
                 )
                 cursor.commit()
-                msg = 'Cuenta creada correctamente!'
-            print(msg)
+                flash('Cuenta creada correctamente!', 'success')
+                return redirect(url_for('inicio'))
+
             cursor.close()
-            return render_template('public/dashboard/pages/Desarrollo/Administrador_Usuarios.html', msjAlert=msg, typeAlert=1, dataLogin=dataLoginSesion())
+            
+            return redirect(url_for('AdministrarUsuarios')) 
         return redirect(url_for('AdministrarUsuarios'))
 
-
-
-@app.route('/actualizar-mi-perfil/<id>', methods=['POST'])
-def actualizarMiPerfil(id):
+@app.route('/actualizar-mi-perfil', methods=['POST'])
+def actualizar_mi_perfil():
     if 'conectado' in session:
-        msg = ''
-        if request.method == 'POST':
-            if(request.form['password']):
-                password         = request.form['password'] 
-                repite_password  = request.form['repite_password'] 
-                print (password, repite_password)
-                if (password != repite_password) and (session['tipo_user'] in [1,2,3,99,100]):
-                    msg ='Las claves no coinciden'
-                    if session['tipo_user'] == 100: 
-                        return render_template('public/dashboard/pages/Cat/Profile_CAT.html',msjAlert = msg, typeAlert=0, dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
-                    elif session['tipo_user'] ==2: 
-                        return render_template('public/dashboard/pages/Ad. Contrato/Profile_AD.html', msjAlert = msg, typeAlert=0,dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
-                    elif session['tipo_user'] ==3:
-                        print ('----------------', 'No nuestra ms')
-                        return render_template('public/dashboard/pages/Sistemas/Profile_Sistemas.html', msjAlert = msg, typeAlert=0, dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
-                    elif session['tipo_user'] ==99:
-                        return render_template('public/dashboard/pages/C. Trafico/Profile_CT.html', msjAlert = msg, typeAlert=0,  dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
-                    elif session['tipo_user'] ==1:
-                        return render_template('public/dashboard/pages/Desarrollo/Profile_desarrollo.html', msjAlert = msg, typeAlert=0,  dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
-                
-                
-                else:
-                    nueva_password = generate_password_hash(password, method='pbkdf2:sha256')
-                    actualizar_password_sql_server(nueva_password, id)
-                    form = CATForm()
-                    msg = 'Perfil actualizado correctamente'
-                    print ('----------------CAMBIANDO------------')
-                    if session['tipo_user'] == 100: 
-                        return render_template('public/dashboard/home_CAT.html',msjAlert = msg, typeAlert=1, dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form = form, data = mostrarRegistros('Pendiente Aprobacion'))
-                    elif session['tipo_user'] ==2: 
-                        return render_template('public/dashboard/home_Admin.html', msjAlert = msg, typeAlert=1, dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
-                    elif session['tipo_user'] ==3:
-                        return render_template('public/dashboard/home_Sistemas.html', msjAlert = msg, typeAlert=1, dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarRegistros('Aprobado'))
-                    elif session['tipo_user'] ==99:
-                        return render_template('public/dashboard/home_CT.html', msjAlert = msg, typeAlert=1, dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
-                    elif session['tipo_user'] ==1:
-                        return render_template('public/dashboard/home_desarrollo.html', msjAlert = msg, typeAlert=1, dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion())
-                
+        form = cambioPassword(request.form)
+        print(form.validate_on_submit())
+        if form.validate_on_submit():
+            print ('es validado')
+            old_password = form.old_password.data
+            new_password = form.new_password.data 
+
+            # Verifica si la contraseña actual es correcta
+            if verificar_contrasena_actual(session['id'], old_password):
+                # Lógica de actualización de contraseñas aquí
+                nueva_password = generate_password_hash(new_password, method='pbkdf2:sha256')
+                actualizar_password_sql_server(nueva_password, session['id']) 
+                # Almacena el mensaje en la sesión flash
+                flash('Contraseña cambiada satisfactoriamente', 'success')
+
+                # Redirige a la página de inicio o a donde desees
+                return redirect(url_for('inicio'))
+            else:
+                flash("La contraseña actual no es correcta", 'danger')
+                return redirect(url_for('inicio'))
+
         else:
+            # Almacena los errores de validación en la sesión flash
+            flash(f"La nueva contraseña no coincide", 'danger')
+
+            # Redirige de nuevo al formulario con los mensajes flash
             return redirect(url_for('inicio'))
-        
     else:
         return redirect(url_for('inicio'))
-            
-
-import pyodbc  # Asegúrate de tener el módulo pyodbc instalado
 
 @app.route('/actualizar-perfil', methods=['POST'])
 def actualizarPerfil():
     if 'conectado' in session:
         msg = ''
-        if request.method == 'POST':
-            if request.form['password']:
-                password = request.form['password']
-                repite_password = request.form['repite_password']
+        form = ediotarUsuario(request.form)
+        print (form.validate_on_submit())
+        if form.validate_on_submit():
+            conexion_SQLServer = connectionBD()
+            cursor = conexion_SQLServer.cursor()
+            cursor.execute('SELECT * FROM login WHERE email = ?', (request.form['email'],))
+            account = cursor.fetchone()
 
+            password = request.form['password']
+            repite_password = request.form['repite_password']
+
+            if account:
                 if (password != repite_password) and (session['tipo_user'] == 1):
                     msg = 'Las claves no coinciden'
-                    return render_template('public/dashboard/home_desarrollo.html', msjAlert=msg, typeAlert=0,
-                                           dataLogin=dataLoginSesion())
+                    flash(msg, 'danger')
+                    return redirect(url_for('editProfileUsers'))
                 else:
                     nueva_password = generate_password_hash(password, method='pbkdf2:sha256')
                     conexion_SQLServer = connectionBD()
@@ -193,20 +182,21 @@ def actualizarPerfil():
                         UPDATE login
                         SET                              
                             password = ?
-                        WHERE email = ?""", (nueva_password, request.form['correo']))
+                        WHERE email = ?""", (nueva_password, request.form['email']))
                     conexion_SQLServer.commit()
                     cur.close()
                     conexion_SQLServer.close()
                     msg = 'Perfil actualizado correctamente'
+                    flash (msg, 'success')
 
-                    return render_template('public/dashboard/home_desarrollo.html', msjAlert=msg, typeAlert=1,
-                                           dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario())
+                    return render_template('public/dashboard/home_desarrollo.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario())
+            else: 
+                flash('La cuenta no existe', 'danger')
+                return redirect(url_for('editProfileUsers'))
+ 
 
         return render_template('public/dashboard/home_desarrollo.html', msjAlert=msg, typeAlert=1,
                                dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario())
-
-
-
 
 
 if __name__ == "__main__":

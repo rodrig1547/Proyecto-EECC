@@ -1,31 +1,25 @@
-<!---Mi alertas-->
-{% if (typeAlert==1) %}
-<div class="toast_alert active">
-    <div class="toast_alert-content">
-        <i class="bi bi-check check"></i>
-
-        <div class="message">
+<!---Mis alertas-->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <div class="toast_alert active">
+      <div class="toast_alert-content">
+        {% if category == 'success' %}
+          <i class="bi bi-check check"></i>
+          <div class="message">
             <span class="text text-1">Felicitaciones 😃</span>
-            <span class="text text-2">{{ msjAlert }}</span>
-        </div>
-    </div>
-    <i class="bi bi-x close"></i>
-    <div class="progress active"></div>
-</div>
-{% endif %}
-
-{% if(typeAlert ==0) %}
-<div class="toast_alert active">
-    <div class="toast_alert-content">
-        <i class="bi bi-check check"></i>
-
-        <div class="message">
+            <span class="text text-2">{{ message }}</span>
+          </div>
+        {% elif category == 'danger' %}
+          <i class="bi bi-check check"></i>
+          <div class="message">
             <span class="text text-1">Error 😱</span>
-            <span class="text text-2">{{ msjAlert }}</span>
-        </div>
+            <span class="text text-2">{{ message }}</span>
+          </div>
+        {% endif %}
+      </div>
+      <i class="bi bi-x close"></i>
+      <div class="progress active"></div>
     </div>
-    <i class="bi bi-x close"></i>
-    <div class="progress active"></div>
-</div>
-{% endif %}
+  {% endfor %}
+{% endwith %}
 <!---Fin Alertas-->

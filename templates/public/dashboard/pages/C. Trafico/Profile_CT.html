@@ -8,31 +8,37 @@
 
     <div class="col-md-10 cajaLogin styFormDashboard">
         <h2 class="text-center titleDashboard mt-3">Editar mi Perfil <hr> </h2>
-            <form action='{{url_for("actualizarMiPerfil",id=dataUser.id)}}' method="POST" autocomplete="off">
+            <form action='{{url_for("actualizar_mi_perfil")}}' method="POST" autocomplete="off">
            
             
 
-            <div class="row">
+            <div class="column">
                 
                 <div class="col-md-6">
-                    <label for="Password" class="form-label mt-3" style="color:crimson;">Nueva Password</label>
-                    <input type="password" name="password" class="form-control">
+                    {{ form.old_password.label }} {{ form.old_password(class="form-control mb-3") }}
                 </div>
 
                 <div class="col-md-6">
-                    <label for="repite_password" class="form-label mt-3" style="color:crimson;">Repetir Password</label>
-                    <input type="password" name="repite_password" class="form-control">
+                    {{ form.new_password.label }} {{ form.new_password(class="form-control mb-3") }}
+                    
                 </div>
+
+                <div class="col-md-6">
+                    {{ form.confirm_password.label }} {{ form.confirm_password(class="form-control mb-3") }}
+                    
+                </div>
+             {{ form.hidden_tag() }}
 
             </div>
 
             <div class="row text-center justify-content-md-center mt-4">
                 <div class="col-md-12 mt-3 mb-3">
-                    <button type="submit" class="btn btn-primary btn-send">Guardar Cambios</button>
+                    {{ form.submit(class="btn btn-primary btn-send") }}
                 </div>
             </div>
 
         </form>
     </div>
 </div>
+{% include 'public/dashboard/pages/alerts.html' %}
 {% endblock %}

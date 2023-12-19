@@ -1,5 +1,35 @@
 from conexionBD import *
 from datetime import datetime
+from werkzeug.security import check_password_hash
+
+
+
+def consultaCuentaExistente(email):
+    """
+        El usuario al tratar de ingresar se deben corrobarar sus credenciales.
+    """
+    conexion_SQLServer = connectionBD()
+    cursor = conexion_SQLServer.cursor()
+    cursor.execute("SELECT * FROM login WHERE email = ?", [email])
+    columns = [column[0] for column in cursor.description]
+    resultado = [dict(zip(columns, row)) for row in cursor.fetchall()][0]
+    return resultado 
+
+
+def verificar_contrasena_actual(id, contrasena):
+    conexion_SQLServer = connectionBD()
+    cursor = conexion_SQLServer.cursor()
+
+    # Consulta SQL para obtener la contraseña almacenada en la base de datos
+    cursor.execute("SELECT password FROM login WHERE id = ?", [id])
+    resultado = cursor.fetchone()
+
+    if resultado and check_password_hash(resultado[0], contrasena):
+        # La contraseña es correcta
+        return True
+    else:
+        # La contraseña no es correcta o no se encontró el usuario
+        return False
 
 
 def mostrarRegistros(perfil_usuario, cliente = None):
@@ -18,7 +48,6 @@ def mostrarRegistros(perfil_usuario, cliente = None):
         # Manejar la excepción según tus necesidades
         print(f"Error: {e}")
         return None
-import pyodbc
 
 def mostrarHistorial(dia1=None, dia2=None, cliente=None, estado=None, viaje_ot=None):
     conexion_SQLServer = connectionBD()  # Creando mi instancia a la conexión de BD
@@ -45,11 +74,11 @@ def mostrarHistorial(dia1=None, dia2=None, cliente=None, estado=None, viaje_ot=N
     else:
         # Si no se proporciona ningún filtro, mostrar todos los registros
         if not where_conditions:
-            cursor.execute(f"SELECT * FROM extracostos WHERE ({(datetime.now()).strftime('%d-%m-%Y')} <= 30)  and (estado IN ('Aprobado', 'Rechazado', 'Ingresado Sitrack', 'No ingresado Sitrack')) ORDER BY id DESC")
+            cursor.execute(f"SELECT * FROM extracostos WHERE ({(datetime.now()).strftime('%d-%m-%Y')} <= 30)  and (estado IN ('Aprobado', 'Rechazado', 'Ingresado Sitrack', 'No ingresado Sitrack')) and (estado != 'Pendiente Aprobacion') ORDER BY id DESC")
         else:
             # Construir la consulta completa con los filtros
             where_clause = " AND ".join(where_conditions)
-            cursor.execute(f"SELECT * FROM extracostos WHERE {where_clause} ORDER BY id DESC")
+            cursor.execute(f"SELECT * FROM extracostos WHERE {where_clause} and  (estado != 'Pendiente Aprobacion') ORDER BY id DESC")
 
     myresult = cursor.fetchall()
 
@@ -200,7 +229,7 @@ def actualizar_password_sql_server(nueva_password, id):
             cursor = conexion_SQLServer.cursor()
 
             sql = """
-                UPDATE login_python  
+                UPDATE login  
                 SET                              
                     password = ?
                 WHERE id = ?
@@ -208,7 +237,7 @@ def actualizar_password_sql_server(nueva_password, id):
             
             # Reemplaza "nombre_de_tabla" con el nombre real de tu tabla en SQL Server
             cursor.execute(sql, nueva_password, id)
-            
+        
             conexion_SQLServer.commit()
             cursor.close()  # Cerrando el cursor
         except Exception as e:

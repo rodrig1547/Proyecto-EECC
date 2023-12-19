@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, FileField, DateField, TimeField
-from wtforms.validators import InputRequired, Length, Optional
+from wtforms import StringField, SubmitField, SelectField, FileField, DateField, TimeField, PasswordField
+from wtforms.validators import InputRequired, Length, Optional, DataRequired, EqualTo, Email
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 
 
@@ -111,7 +111,44 @@ class historialForm(FlaskForm):
       submit = SubmitField('Buscar')
 
       
+class cambioPassword(FlaskForm): 
+    old_password = PasswordField('Contraseña actual', validators=[DataRequired()], render_kw={'class': 'form-label mt-3', 'style': 'color:red;'})
+    new_password = PasswordField('Nueva contraseña', validators=[DataRequired(), Length(min=6)], render_kw={'class': 'form-label mt-3', 'style': 'color:red;'})
+    confirm_password = PasswordField('Confirmar contraseña', validators=[DataRequired(), EqualTo('new_password')])
+    submit = SubmitField('Cambiar contraseña')
        
+
+class loginUsuario(FlaskForm):
+    email = StringField('Correo Electrónico', validators=[DataRequired()])
+    password = PasswordField('Contraseña', validators=[DataRequired()])
+    submit = SubmitField('Entrar')
+
+class crearUsuario(FlaskForm):
+    nombre = StringField('Primer Nombre', validators=[DataRequired()])
+    apellido = StringField('Apellidos', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    repite_password = PasswordField('Repetir Password', validators=[DataRequired()])
+    perfil_usuario = SelectField('Selección Perfil', choices=[('','-----'),
+                                                              ('Ad. Contrato', 'Ad. Contrato'), ('Control Trafico', 'Control Trafico'), ('Cat', 'Cat'), ('Sistemas', 'Sistemas')], validators=[DataRequired()])
+    minera = SelectField('Minera', choices=[('','-----'),
+                                              ('AMSA', 'AMSA'), 
+                                              ('Alto Norte', 'Alto Norte'), 
+                                              ('BHP', 'BHP'), 
+                                              ('Codelco', 'Codelco'), 
+                                              ('Codesa', 'Codesa'), 
+                                              ('CMDIC', 'CMDIC'), 
+                                              ('Engie', 'Engie'), 
+                                              ('Finning', 'Finning'), 
+                                              ('Glencore', 'Glencore'), 
+                                              ('Lomas Bayas', 'Lomas Bayas')])  # Opciones específicas para cada perfil
+    submit = SubmitField('Crear Ahora!')
+     
+class ediotarUsuario(FlaskForm):
+    email = StringField('Correo Electrónico', validators=[DataRequired()])
+    password = PasswordField('Nueva Password', validators=[DataRequired(), Length(min=6)])
+    repite_password = PasswordField('Repetir Password', validators=[DataRequired(), Length(min=6)])
+    submit = SubmitField('Guardar Cambios')
 
 
 

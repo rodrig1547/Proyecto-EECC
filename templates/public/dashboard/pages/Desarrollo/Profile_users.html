@@ -15,25 +15,26 @@
             <div class="row">
                 
                 <div class="col-md-6">
-                    <label for="Password" class="form-label mt-3" style="color:black;">Correo Electronico</label>
-                    <input type="email" name="correo" class="form-control">
+                    {{ form.email.label(class="form-label mt-3", style="color:black;") }}
+                    {{ form.email(class="form-control") }}
                 </div>
                 
                 <div class="col-md-6">
-                    <label for="Password" class="form-label mt-3" style="color:crimson;">Nueva Password</label>
-                    <input type="password" name="password" class="form-control">
+                    {{ form.password.label(class="form-label mt-3", style="color:crimson;") }}
+                    {{ form.password(class="form-control") }}
                 </div>
-
+                
                 <div class="col-md-6">
-                    <label for="repite_password" class="form-label mt-3" style="color:crimson;">Repetir Password</label>
-                    <input type="password" name="repite_password" class="form-control">
+                    {{ form.repite_password.label(class="form-label mt-3", style="color:crimson;") }}
+                    {{ form.repite_password(class="form-control") }}
                 </div>
+                    {{ form.hidden_tag() }}
 
             </div>
 
             <div class="row text-center justify-content-md-center mt-4">
                 <div class="col-md-12 mt-3 mb-3">
-                    <button type="submit" class="btn btn-primary btn-send">Guardar Cambios</button>
+                    {{ form.submit(class="btn btn-primary btn-send", id="sendForm") }}
                 </div>
             </div>
 

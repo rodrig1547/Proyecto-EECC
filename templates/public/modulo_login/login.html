@@ -2,24 +2,17 @@
 <h1 class="mb-5" id="title">Excelencia Operacional <hr> </h1>
 <form action="{{ url_for('loginUser') }}" method="POST" autocomplete="off">
     <div class="mb-6">
-        <label for="email" class="form-label">Escribir tu Email</label>
-        <input type="email" name="email" id="email" class="form-control" required="true">
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control", placeholder="Escribe tu correo electrónico") }}<br>
     </div>
     <div class="mb-6">
-        <label for="password" class="form-label mt-4">Escribe tu Password</label>
-        <input type="password" name="password" class="form-control" required="true">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control") }}
     </div>
+        {{ form.hidden_tag() }}
 
     <div class="d-grid gap-2 mt-3 mb-3">
-        <button type="submit" class="btn btn-primary btn-send">Entrar Ahora!</button>
+        {{ form.submit(class="btn btn-primary btn-send") }}
     </div>
 
-    <div class="mb-12">
-        <span>
-            No tienes Cuenta?
-        </span>
-        <a href="#" id="link_sign_up" class="createUser">
-            Crear cuenta
-        </a>
-    </div>
 </form>
