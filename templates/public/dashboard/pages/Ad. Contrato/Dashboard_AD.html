@@ -1,30 +1,87 @@
 {% block body %}
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
-    function confirmarAprobar(url) {
-        // Utiliza window.confirm para mostrar una ventana de confirmación
-        if (window.confirm("¿Estás seguro de que desea APROBAR este EXTRACOSTO?")) {
-            // Si el usuario hace clic en "Aceptar", redirige a la URL de eliminación
-            window.location.href = url;
-        } else {
-            // Si el usuario hace clic en "Cancelar", no hace nada
-        }
+    function confirmarAprobar(id) {
+    if (window.confirm("¿Estás seguro de que desea APROBAR este EXTRACOSTO?")) {
+        $.ajax({
+            url: '/actualizacion', // Asegúrate de que esta sea la URL correcta
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ id: id, estado: 'Aprobado' }),
+            success: function(response) {
+                // Verifica si la respuesta incluye una URL de redirección
+                if (response.redirect) {
+                    // Si es así, redirecciona a esa URL
+                    window.location.href = response.redirect;
+                } else {
+                    // Maneja una respuesta exitosa sin redirección aquí
+                    console.log("Actualización exitosa sin redirección");
+                }
+            },
+            error: function(error) {
+                // Aquí manejas los errores
+                console.log(error);
+            }
+        });
     }
-
-    // Resto del código JavaScript...
+}
 </script>
 <script>
-    function confirmarRechazo(url) {
-        // Utiliza window.confirm para mostrar una ventana de confirmación
-        if (window.confirm("¿Estás seguro de que desea RECHAZAR este EXTRACOSTO?")) {
-            // Si el usuario hace clic en "Aceptar", redirige a la URL de eliminación
-            window.location.href = url;
-        } else {
-            // Si el usuario hace clic en "Cancelar", no hace nada
-        }
-    }
+    function confirmarRechazo(id) {
+    // Guarda el ID para usarlo luego en enviarRechazo
+    $('#rechazoModal').data('id', id);
+    $('#rechazoModal').show();
+}
 
-    // Resto del código JavaScript...
+function cerrarModal() {
+    $('#rechazoModal').hide();
+}
+</script>
+<script>
+   $(document).ready(function() {
+    // Delegación del evento click para el botón de cerrar
+    $(document).on('click', '#modalCancelar', function() {
+        $('#rechazoModal').hide();
+    });
+
+    // Delegación del evento click para el botón de Enviar a CAT
+    $(document).on('click', '#EnviarCat', function() {
+        if (window.confirm("¿Estás seguro de que desea ENVIAR A CAT este EXTRACOSTO?")) {
+            enviarActualizacion('*Rechazado');
+        }
+    });
+
+    // Delegación del evento click para el botón de Rechazado
+    $(document).on('click', '#Rechazado', function() {
+        if (window.confirm("¿Estás seguro de que desea RECHAZAR este EXTRACOSTO?")) {
+            enviarActualizacion('Rechazado');
+        }
+    });
+});
+
+function enviarActualizacion(estado) {
+    var id = $('#rechazoModal').data('id');
+    var motivoRechazo = $('#exampleFormControlTextarea1').val();
+
+    $.ajax({
+        url: '/actualizacion',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ id: id, estado: estado, motivo: motivoRechazo }),
+        success: function(response) {
+            if (response.redirect) {
+                window.location.href = response.redirect;
+            } else {
+                console.log("Actualización exitosa sin redirección");
+            }
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
+
+    $('#rechazoModal').hide();
+}
 </script>
 <body>
 <div class="container-fluid">
@@ -75,8 +132,8 @@
                             <td>{{d.monto}}</td>
                             <td>{{d.estado}}</td>
                             <td><a href="{{ url_for('download', nombre_zip=d.nombre_zip) }}" class="btn btn-success btn-sm" title="Descargar" style="font-size: 8px;">Descargar</a></td>
-                            <td><a href="#" onclick="confirmarAprobar('{{ url_for('actualizacion', estado='Aprobado', id= d.id) }}')" class="btn btn-success btn-sm" title="Aprobar" style="font-size: 8px;">A</a>
-                                <a href="#" onclick="confirmarRechazo('{{ url_for('actualizacion', estado= 'Rechazado', id= d.id) }}')"  class="btn btn-danger btn-sm" title="Rechazar" style="font-size: 8px;">R</a></td>
+                            <td><a href="#" onclick="confirmarAprobar('{{ d.id }}')" class="btn btn-success btn-sm" title="Aprobar" style="font-size: 8px;">A</a>
+                                <a href="#" onclick="confirmarRechazo('{{ d.id }}')"  class="btn btn-danger btn-sm" title="Rechazar" style="font-size: 8px;">R</a></td>
                                                                  
                         </tr>
 
@@ -88,6 +145,27 @@
             </table>
         </div>
     </div>
+     <!-- Aquí va el modal -->
+    <div id="rechazoModal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Motivo de Rechazo</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="1" maxlength="40"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button id ='modalCancelar'type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button id= 'EnviarCat' type="button" class="btn btn-primary">Enviar a CAT Rechazo</button>
+              <button id= 'Rechazado' type="button" class="btn btn-primary">Rechazado</button>
+            </div>
+          </div>
+        </div>
+     </div>
+
 </div>
     
 {% endblock %}

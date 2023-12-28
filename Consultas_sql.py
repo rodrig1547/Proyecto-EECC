@@ -32,14 +32,22 @@ def verificar_contrasena_actual(id, contrasena):
         return False
 
 
-def mostrarRegistros(perfil_usuario, cliente = None):
+def mostrarRegistros(perfil_usuario, cliente:list = None, id_user: int = None):
     try:
         conexion_SQLServer = connectionBD()
         cursor = conexion_SQLServer.cursor()
-        if cliente is not None:
-            cursor.execute("SELECT * FROM extracostos WHERE estado = ? AND cliente = ? ORDER BY id DESC", (perfil_usuario, cliente))
-        else:
-            cursor.execute("SELECT * FROM extracostos WHERE estado = ? ORDER BY id DESC", (perfil_usuario,))
+        if perfil_usuario == 2:
+            placeholders = ', '.join(['?'] * len(cliente))
+            print (cliente)
+            query = f"SELECT * FROM extracostos WHERE estado = 'Pendiente Aprobacion' AND cliente IN ({placeholders}) ORDER BY id DESC"
+            
+            cursor.execute(query, *cliente)
+        elif perfil_usuario == 3:
+            cursor.execute ("SELECT * FROM extracostos WHERE estado = 'Aprobado' ORDER BY id DESC")
+
+        elif perfil_usuario == 100:
+            cursor.execute (f"SELECT * FROM extracostos WHERE (estado = 'Pendiente Aprobacion' or estado LIKE '*Rechazado%') and id_user = {id_user} ORDER BY id DESC")
+
         myresult = cursor.fetchall()
         column_names = [column[0] for column in cursor.description]
         insert_object = [dict(zip(column_names, record)) for record in myresult]
@@ -74,11 +82,11 @@ def mostrarHistorial(dia1=None, dia2=None, cliente=None, estado=None, viaje_ot=N
     else:
         # Si no se proporciona ningún filtro, mostrar todos los registros
         if not where_conditions:
-            cursor.execute(f"SELECT * FROM extracostos WHERE ({(datetime.now()).strftime('%d-%m-%Y')} <= 30)  and (estado IN ('Aprobado', 'Rechazado', 'Ingresado Sitrack', 'No ingresado Sitrack')) and (estado != 'Pendiente Aprobacion') ORDER BY id DESC")
+            cursor.execute(f"SELECT * FROM extracostos WHERE ({(datetime.now()).strftime('%d-%m-%Y')} <= 30) ORDER BY id DESC")
         else:
             # Construir la consulta completa con los filtros
             where_clause = " AND ".join(where_conditions)
-            cursor.execute(f"SELECT * FROM extracostos WHERE {where_clause} and  (estado != 'Pendiente Aprobacion') ORDER BY id DESC")
+            cursor.execute(f"SELECT * FROM extracostos WHERE {where_clause} ORDER BY id DESC")
 
     myresult = cursor.fetchall()
 
@@ -135,26 +143,25 @@ def deleterow(id):
         print("No se pudo establecer conexión con la base de datos.")
 
 
-def actualizacionEstado(values):
+def actualizacionEstado(values, estado):
     conexion_SQLServer = connectionBD()
 
     if conexion_SQLServer:
         try:
             cursor = conexion_SQLServer.cursor()
+            if estado in ['Aprobado', '*Rechazado', 'Rechazado'] :
+                sql = """
+                    UPDATE extracostos
+                    SET
+                        estado = ?,
+                        responsable_evaluacion = ?,
+                        fecha_cierre = ?
+                    WHERE id = ?
+                """
+                # Reemplaza "nombre_de_tabla" con el nombre real de tu tabla en SQL Server
+                cursor.execute(sql, values)                
+                conexion_SQLServer.commit()
 
-            sql = """
-                UPDATE extracostos
-                SET
-                    estado = ?,
-                    responsable_evaluacion = ?,
-                    fecha_cierre = ?
-                WHERE id = ?
-            """
-            
-            # Reemplaza "nombre_de_tabla" con el nombre real de tu tabla en SQL Server
-            cursor.execute(sql, values)
-            
-            conexion_SQLServer.commit()
             cursor.close()  # Cerrando el cursor
         except Exception as e:
             print(f"Error al actualizar el estado en la base de datos: {str(e)}")

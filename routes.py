@@ -1,8 +1,11 @@
-from flask import Flask, render_template, redirect, url_for, session, request, send_from_directory
+from flask import Flask, render_template, redirect, url_for, session, request, send_from_directory, flash, jsonify
 from funciones import *  #Importando mis Funciones
 from Consultas_sql import *
 from datetime import datetime
 from forms import CATForm, historialForm, cambioPassword,loginUsuario, crearUsuario, ediotarUsuario
+import pytz #Libraria zona horaria
+import ast #transformar str to list
+
 
 
 #Declarando nombre de la aplicación e inicializando, crear la aplicación Flask
@@ -12,6 +15,8 @@ application = app
 
 app.secret_key = '97110c78ae51a45af397be6534caef90ebb9b1dcb3380af008f90b23a5d1616bf19bc29098105da20fe'
 
+#Zona Horaria Chile
+chile_tz = pytz.timezone('Chile/Continental')
 
 
 #Redireccionando cuando la página no existe
@@ -23,31 +28,27 @@ def not_found(error):
         form = loginUsuario()
         return render_template('public/modulo_login/index.html', form = form)
     
-
-
-    
-    
-#Creando mi Decorador para el Home
+#Decorador de inicio de session
 @app.route('/home')
 def inicio():
     if 'conectado' in session: 
-            perfil_usuario = session['tipo_user']
-    if 'conectado' in session and perfil_usuario == 100:
-        print ('Ingresando a /home perfil Cat 100')
-        form = CATForm()
-        return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion'), form = form)
-    elif 'conectado' in session and perfil_usuario == 1:
-        return (render_template('public/dashboard/home_desarrollo.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario()))
-    elif 'conectado' in session and perfil_usuario == 2:
-        return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
-    elif 'conectado' in session and perfil_usuario == 3:
-        return render_template('public/dashboard/home_Sistemas.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
-    elif 'conectado' in session and perfil_usuario == 99:
-        return redirect(url_for('historial'))
+        perfil_usuario = session['tipo_user']
+        if perfil_usuario == 100:
+            form = CATForm()
+            id_user = session['id']
+            return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros(perfil_usuario= perfil_usuario, id_user = id_user), form = form)
+        elif perfil_usuario == 1:
+            return (render_template('public/dashboard/home_desarrollo.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario()))
+        elif perfil_usuario == 2:
+            return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros(perfil_usuario= perfil_usuario, cliente = ast.literal_eval(session['minera'])))
+        elif perfil_usuario == 3:
+            return render_template('public/dashboard/home_Sistemas.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros(perfil_usuario=perfil_usuario))
+        elif perfil_usuario == 99:
+            return redirect(url_for('historial'))
     else: 
         return redirect(url_for('page_inicio'))
 
-#Ruta para editar el perfil del cliente
+#Ruta para que cada usuario pueda editar su perfil para cambiar contraseña
 @app.route('/edit-profile', methods=['GET', 'POST'])
 def editProfile():
     form = cambioPassword(request.form)
@@ -63,6 +64,7 @@ def editProfile():
         return render_template('public/dashboard/pages/C. Trafico/Profile_CT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form =form)
     return redirect(url_for('inicio'))
 
+#Ruta para que el administrador pueda modificar las cuentas a las cuales se les olvida la contraseña
 @app.route('/edit-profiles-users', methods=['GET', 'POST'])
 def editProfileUsers():
     form = ediotarUsuario()
@@ -70,12 +72,11 @@ def editProfileUsers():
         return render_template('public/dashboard/pages/Desarrollo/Profile_users.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form = form)
     return redirect(url_for('inicio'))     
 
-#Ruta para observar todos los registros, incluyendo Filtros de Busqueda.
+#Ruta para observar todos los registros menos los "pendientes de aprobacion", incluso el boton de busqueda
 @app.route('/historial', methods = ['GET','POST'])
 def historial():
     perfil_usuario = session['tipo_user']
     form = historialForm(request.form)
-    print (form.data)
 
     if form.validate_on_submit() and perfil_usuario in [2,3,99,100] :
         fecha_inicio_value = form.fecha_inicio.data.strftime('%d-%m-%Y') if form.fecha_inicio.data is not None else None
@@ -118,8 +119,8 @@ def historial():
         if perfil_usuario == 3:
             return render_template('public/dashboard/pages/Sistemas/historial_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
             
-
-@app.route('/user', methods=['GET','POST'])
+#Ruta para agregar un extracosto para el perfil de CAT
+@app.route('/add-eecc', methods=['GET','POST'])
 def addUser(): 
     form = CATForm(request.form)
     if form.validate() and dataLoginSesion()["tipoLogin"] == 100: 
@@ -131,7 +132,7 @@ def addUser():
         data['usuario'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido'] 
         data['nombre_zip'] = nuevoNombreFile
         data['estado'] = 'Pendiente Aprobacion'
-        data['fecha_creacion'] = (datetime.now()).strftime('%d-%m-%Y, %H:%M')
+        data['fecha_creacion'] = datetime.now(chile_tz).strftime('%d-%m-%Y, %H:%M')
         data['motivo'] = data['motivo_ajuste_tarifa'] + data['motivo_redestinacion'] + data['motivo_sobre_estadia'] + data['motivo_falso_flete'] + data['motivo_posicionamiento_vacio']
         data['fecha_ingreso_sitrack'] = ''
         data['fecha_ingreso_sitrack'] = ''
@@ -144,10 +145,8 @@ def addUser():
         del data['motivo_posicionamiento_vacio']
         del data['submit']
         del data['csrf_token']
+        data['id_user'] = session['id']
         data = {key: '' if value is None else value for key, value in data.items()}
-
-
-        print ('-----------',data)
 
         addUserbd(data)
         return redirect(url_for('inicio'))
@@ -160,7 +159,8 @@ def addUser():
 #Ruta para ELIMINAR Registros
 @app.route('/delete/<string:id>/<string:estado>')
 def delete(id, estado):
-    if estado == 'Pendiente Aprobacion' and dataLoginSesion()['tipoLogin'] ==100:
+    print (estado)
+    if (estado == 'Pendiente Aprobacion' or estado.startswith("*Rechazado")) and  dataLoginSesion()['tipoLogin'] ==100:
         data = (id,)
         deleterow(data)
         return redirect(url_for('inicio'))
@@ -179,51 +179,53 @@ def download(nombre_zip):
         return send_from_directory(dir, nombre_zip, as_attachment=True, download_name = nuevo_nombre)
 
 #Ruta para Aprobar o Rechazar un EECC
-@app.route('/actualizacion/<string:id>/<string:estado>')
-def actualizacion(id, estado):
-    print(f"Received id: {id}, estado: {estado} ")
-    data = {}
-    data['estado'] = estado
-    data['responsable_evaluacion'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido'] 
-    data['fecha_cierre'] = (datetime.now()).strftime('%d-%m-%Y, %H:%M') 
-    data['id'] = id
-    
-    values = list(data.values())
-    print (values)
-    actualizacionEstado(values)      
-    return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Pendiente Aprobacion', session['minera']))
+@app.route('/actualizacion', methods = ['POST'])
+def actualizacion():
+    if 'conectado' in session and (session['tipo_user'] == 2):
+        sql = {}
+        data = request.json
+        print (data)
+        if data['estado'] == 'Aprobado':
+            sql['estado'] = data['estado']
+        elif data['estado'] in ['*Rechazado', 'Rechazado']: 
+            sql['estado'] = data['estado'] + ': ' + data['motivo']
+        sql['responsable_evaluacion'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido']
+        sql['fecha_cierre'] = datetime.now(chile_tz).strftime('%d-%m-%Y, %H:%M') 
+        sql['id'] = data['id']
+        values = list(sql.values())
+        actualizacionEstado(values, data['estado'])
+        print (values)
+        return jsonify({'redirect': url_for('inicio')})
+    return redirect(url_for('inicio'))
 
-
+#Ruta para actualizar el estado de un por parte del rol de sistemas.
 @app.route('/actualizacionSistemas/<string:id>/<string:estado>')
 def actualizacionSistemas(id, estado):
-    print ('-----------------')
-    print(f"Received id: {id}, estado: {estado}")
-    data = {}
-    data['estado'] = estado
-    data['responsable_evaluacion'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido']  
-    data['fecha_ingreso_sitrack'] = (datetime.now()).strftime('%d-%m-%Y, %H:%M') 
-    data['id'] = id
+    if 'conectado' in session and (session['tipo_user'] == 3):
+        data = {}
+        data['estado'] = estado
+        data['responsable_evaluacion'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido']  
+        data['fecha_ingreso_sitrack'] = datetime.now(chile_tz).strftime('%d-%m-%Y, %H:%M') 
+        data['id'] = id
+        values = list(data.values())
+        actualizacionEstadoSistemas(values)      
+        return redirect(url_for('inicio'))
     
-    values = list(data.values())
-    print (values, '---------')
-    actualizacionEstadoSistemas(values)      
-    return render_template('public/dashboard/home_Sistemas.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros('Aprobado'))
-
-@app.route('/Administrar-Usuarios', methods = ['GET', 'POST'])
+#Ruta para crear usuario
+@app.route('/Crear-Usuario', methods = ['GET', 'POST'])
 def AdministrarUsuarios():
     if 'conectado' in session and session['tipo_user'] == 1:
         form = crearUsuario()
         print ('Ingreso a  AdministrarUsuarios 1' )
-        return render_template('public/dashboard/pages/Desarrollo/Administrador_Usuarios.html', dataLogin = dataLoginSesion(), form = form) 
+        return render_template('public/dashboard/pages/Desarrollo/Crear_Usuario.html', dataLogin = dataLoginSesion(), form = form) 
      
 # Cerrar session del usuario
 @app.route('/logout')
 def logout():
-    msgClose = ''
     # Eliminar datos de sesión, esto cerrará la sesión del usuario
     session.pop('conectado', None)
     session.pop('id', None)
     session.pop('email', None)
-    msgClose ="La sesión fue cerrada correctamente"
     form = loginUsuario()
-    return render_template('public/modulo_login/index.html', msjAlert = msgClose, typeAlert=1, form = form) 
+    flash('Cuenta cerrada con éxito', 'success')
+    return render_template('public/modulo_login/index.html', form = form) 

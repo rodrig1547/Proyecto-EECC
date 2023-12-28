@@ -52,20 +52,29 @@
 </script>
 <script>
 $(document).ready(function() {
-        $('#montoInput').on('input', function() {
-            // Obtén el valor del campo de entrada
-            let monto = $(this).val();
+  $('#montoInput').on('input', function() {
+    // Obtén el valor del campo de entrada
+    let monto = $(this).val();
 
-            // Elimina cualquier caracter que no sea un número
-            monto = monto.replace(/[^\d-]/g, '');
+    // Elimina cualquier caracter que no sea un número, excepto el signo "-" al principio
+    monto = monto.replace(/[^\d-]/g, '');
 
-            // Agrega el signo de dólar y formatea el número con puntos como separadores de miles
-            let formattedMonto = '$' + parseFloat(monto).toLocaleString('es-AR');
+    // Verifica si es un número negativo
+    let isNegative = false;
+    if (monto.indexOf('-') !== -1) {
+      isNegative = true;
+      monto = monto.replace('-', ''); // Elimina el signo negativo temporalmente
+    }
 
-            // Establece el valor formateado de vuelta en el campo de entrada
-            $(this).val(formattedMonto);
-        });
-    });</script>
+    // Agrega el signo de dólar y formatea el número con puntos como separadores de miles
+    let formattedMonto = (isNegative ? '-$' : '$') + parseFloat(monto).toLocaleString('es-AR');
+
+    // Establece el valor formateado de vuelta en el campo de entrada
+    $(this).val(formattedMonto);
+  });
+});
+
+</script>
 <script>
 $(document).ready(function(){
     // Oculta los campos al cargar la página
@@ -285,7 +294,7 @@ $(document).ready(function(){
             
                 <tbody>
                     {% for d in data %}
-                        <tr>
+                        <tr id="row-{{ d.id }}">
                             <td>{{d.id}}</td>
                             <td>{{d.usuario}}</td>
                             <td>{{d.fecha_creacion}}</td>
@@ -318,6 +327,5 @@ $(document).ready(function(){
 
             </div>
         </div>
-    </div>
-    
+    </div> 
 {% endblock %}

@@ -1,34 +1,57 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, FileField, DateField, TimeField, PasswordField
+from wtforms import StringField, SubmitField, SelectField, FileField, DateField, TimeField, PasswordField, SelectMultipleField
 from wtforms.validators import InputRequired, Length, Optional, DataRequired, EqualTo, Email
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 
+from listadoProveedores import proveedores
 
+mineras = [
+    ('','-----'),
+    ('ALGARROBAL', 'ALGARROBAL'),
+    ('ALTONORTE', 'ALTONORTE'),
+    ('AMSA', 'AMSA'),
+    ('ATLAS', 'ATLAS'),
+    ('BHP', 'BHP'),
+    ('BUREAU', 'BUREAU'),
+    ('BUTKA', 'BUTKA'),
+    ('CENTINELA', 'CENTINELA'),
+    ('COCESA', 'COCESA'),
+    ('CODELCO', 'CODELCO'),
+    ('COLLAHUASI', 'COLLAHUASI'),
+    ('CONVEYOR', 'CONVEYOR'),
+    ('COPEC_M', 'COPEC_M'),
+    ('DSV_M', 'DSV_M'),
+    ('EMERSON', 'EMERSON'),
+    ('ENGIE', 'ENGIE'),
+    ('EPIROC', 'EPIROC'),
+    ('FASSER', 'FASSER'),
+    ('FINNING', 'FINNING'),
+    ('GESTA', 'GESTA'),
+    ('GUIÑEZING', 'GUIÑEZING'),
+    ('KAMPFER', 'KAMPFER'),
+    ('LOMASBAYAS', 'LOMASBAYAS'),
+    ('MEL', 'MEL'),
+    ('METSO_M', 'METSO_M'),
+    ('TICV', 'TICV'),
+    ('VULCAN', 'VULCAN'),
+    ('WESTFIRE', 'WESTFIRE'),
+    ('Otras Mineras', 'Otras Mineras')
+    ]
 
 
 class CATForm(FlaskForm):
+
     viaje_ot = StringField('Viaje/OT', validators
                            =[InputRequired(),
                              Length(min=6, max=7) ])
-    cliente = SelectField('Cliente', choices=[('','-----'),
-                                              ('AMSA', 'AMSA'), 
-                                              ('Alto Norte', 'Alto Norte'), 
-                                              ('BHP', 'BHP'), 
-                                              ('Codelco', 'Codelco'), 
-                                              ('Codesa', 'Codesa'), 
-                                              ('CMDIC', 'CMDIC'), 
-                                              ('Engie', 'Engie'), 
-                                              ('Finning', 'Finning'), 
-                                              ('Glencore', 'Glencore'), 
-                                              ('Lomas Bayas', 'Lomas Bayas'), 
-                                              ], 
+    cliente = SelectField('Cliente', choices= mineras, 
                                               validators=[InputRequired()])
     
     agencia = SelectField('Agencia', choices=[('','-----'),
                                               ('SCL', 'SCL'), 
                                               ('ANF', 'ANF'), 
                                               ('POZ', 'POZ'), 
-                                              ('CPP', 'CPP'),  
+                                              ('CPP', 'CPP')  
                                               ], 
                                               validators=[InputRequired()])
     
@@ -71,13 +94,11 @@ class CATForm(FlaskForm):
     hora_llegada = TimeField('Hora de Llegada', validators=[Optional()], render_kw={"class": "form-control mb-3"}, default='')
 
     dia2 = DateField('Dia', validators=[Optional()], render_kw={"class": "form-control mb-3"}) 
-    hora_salida = TimeField('Hora de Llegada', validators=[Optional()], render_kw={"class": "form-control mb-3"})
+    hora_salida = TimeField('Hora Salida', validators=[Optional()], render_kw={"class": "form-control mb-3"})
     dia3 = DateField('Dia', validators=[Optional()], render_kw={"class": "form-control mb-3"})
     total_horas = StringField('Total Horas')
-    empresa = SelectField('Empresa', choices=[('','-----'),
-                                                                  ('LIBERTADOR', 'LIBERTADOR'),
-                                                            ('TRANSPORTE IVAN MAURICIO MATELUNA', 'TRANSPORTE IVAN MAURICIO MATELUNA')
-                                                            ], validators=[InputRequired()])
+    empresa = SelectField('Empresa', choices=proveedores, 
+                                              validators=[InputRequired()])
     monto = StringField('Monto', validators=[InputRequired()],render_kw={"id":"montoInput"})
     nombre_zip = FileField('Adjuntar Archivo', render_kw={"type": "file", "accept": ".rar, .zip"})
     submit = SubmitField('Guardar', render_kw={'onclick': 'confirmarGuardado();', 'type': 'submit'})
@@ -131,17 +152,7 @@ class crearUsuario(FlaskForm):
     repite_password = PasswordField('Repetir Password', validators=[DataRequired()])
     perfil_usuario = SelectField('Selección Perfil', choices=[('','-----'),
                                                               ('Ad. Contrato', 'Ad. Contrato'), ('Control Trafico', 'Control Trafico'), ('Cat', 'Cat'), ('Sistemas', 'Sistemas')], validators=[DataRequired()])
-    minera = SelectField('Minera', choices=[('','-----'),
-                                              ('AMSA', 'AMSA'), 
-                                              ('Alto Norte', 'Alto Norte'), 
-                                              ('BHP', 'BHP'), 
-                                              ('Codelco', 'Codelco'), 
-                                              ('Codesa', 'Codesa'), 
-                                              ('CMDIC', 'CMDIC'), 
-                                              ('Engie', 'Engie'), 
-                                              ('Finning', 'Finning'), 
-                                              ('Glencore', 'Glencore'), 
-                                              ('Lomas Bayas', 'Lomas Bayas')])  # Opciones específicas para cada perfil
+    minera = SelectMultipleField('Minera', choices= mineras)  # Opciones específicas para cada perfil
     submit = SubmitField('Crear Ahora!')
      
 class ediotarUsuario(FlaskForm):

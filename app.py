@@ -17,14 +17,17 @@ logging.basicConfig(filename='app.log', level=logging.DEBUG)
 
 @app.route('/', methods=['GET', 'POST'])
 def page_inicio():
-    form = loginUsuario()
-    return render_template('public/modulo_login/index.html', form = form)
+    if 'conectado' in session:
+        return redirect(url_for('inicio'))
+    else:
+        form = loginUsuario()
+        return render_template('public/modulo_login/index.html', form = form)
 
 # Pagina Principal.
 @app.route('/dashboard', methods=['GET', 'POST'])
 def loginUser():
     app.logger.info(f'Solicitud GET a {request.path} desde {request.remote_addr}')
-  
+    print (session)
     if 'conectado' in session:
         perfil_usuario = session['tipo_user']
         #Perfil Desarrollador
@@ -71,10 +74,11 @@ import pyodbc  # Asegúrate de tener el módulo pyodbc instalado
 @app.route('/registro-usuario', methods=['GET', 'POST'])
 def registerUser():
     if 'conectado' in session and session['tipo_user'] == 1:
-        msg = ''
         conexion_SQLServer = connectionBD()
         form = crearUsuario(request.form)
         print (form.validate_on_submit())
+        print (request.form)
+        print (request.form.getlist('minera'))
         if form.validate_on_submit():
             if request.form['perfil_usuario'] == 'Ad. Contrato':
                 tipo_user = 2
@@ -92,7 +96,7 @@ def registerUser():
             password = request.form['password']
             repite_password = request.form['repite_password']
             perfil_usuario = request.form['perfil_usuario']
-            minera = request.form['minera']
+            minera = str(request.form.getlist('minera'))
             create_at = date.today().strftime('%d-%m-%Y, %H:%M')
 
             cursor = conexion_SQLServer.cursor()
