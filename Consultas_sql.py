@@ -1,5 +1,5 @@
 from conexionBD import *
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.security import check_password_hash
 
 
@@ -38,15 +38,18 @@ def mostrarRegistros(perfil_usuario, cliente:list = None, id_user: int = None):
         cursor = conexion_SQLServer.cursor()
         if perfil_usuario == 2:
             placeholders = ', '.join(['?'] * len(cliente))
-            print (cliente)
             query = f"SELECT * FROM extracostos WHERE estado = 'Pendiente Aprobacion' AND cliente IN ({placeholders}) ORDER BY id DESC"
             
             cursor.execute(query, *cliente)
         elif perfil_usuario == 3:
-            cursor.execute ("SELECT * FROM extracostos WHERE estado = 'Aprobado' ORDER BY id DESC")
+            cursor.execute ("""SELECT * FROM extracostos 
+                            WHERE estado = 'Aprobado' 
+                            ORDER BY id DESC""")
 
         elif perfil_usuario == 100:
-            cursor.execute (f"SELECT * FROM extracostos WHERE (estado = 'Pendiente Aprobacion' or estado LIKE '*Rechazado%') and id_user = {id_user} ORDER BY id DESC")
+            cursor.execute (f"""SELECT *, FORMAT(dia_eecc, 'dd-MM-yyyy') AS dia_eecc 
+                            FROM extracostos WHERE (estado = 'Pendiente Aprobacion' or estado LIKE '*Rechazado%') and id_user = {id_user} 
+                            ORDER BY id DESC""")
 
         myresult = cursor.fetchall()
         column_names = [column[0] for column in cursor.description]
@@ -57,7 +60,7 @@ def mostrarRegistros(perfil_usuario, cliente:list = None, id_user: int = None):
         print(f"Error: {e}")
         return None
 
-def mostrarHistorial(dia1=None, dia2=None, cliente=None, estado=None, viaje_ot=None):
+def mostrarHistorial(dia1=None, dia2=None, cliente=None, estado=None, viaje_ot=None, empresa=None):
     conexion_SQLServer = connectionBD()  # Creando mi instancia a la conexión de BD
     cursor = conexion_SQLServer.cursor()
 
@@ -65,28 +68,37 @@ def mostrarHistorial(dia1=None, dia2=None, cliente=None, estado=None, viaje_ot=N
     where_conditions = []
 
     if dia1:
-        where_conditions.append(f"fecha_creacion >= '{dia1}'")
+        where_conditions.append(f"dia_eecc >= '{dia1}'")
 
     if dia2:
-        where_conditions.append(f"fecha_creacion <= '{dia2}'")
+        where_conditions.append(f"dia_eecc <= '{dia2}'")
 
     if cliente:
         where_conditions.append(f"cliente = '{cliente}'")
 
     if estado:
-        where_conditions.append(f"estado = '{estado}'")
+        where_conditions.append(f"estado LIKE '{estado}'")
+
+    if empresa:
+        where_conditions.append(f"empresa = '{empresa}'")
 
     # Si se proporciona el parámetro viaje_ot, ignorar todos los demás filtros
     if viaje_ot:
-        cursor.execute(f"SELECT * FROM extracostos WHERE viaje_ot = '{viaje_ot}' ORDER BY id DESC")
+        cursor.execute(f"SELECT *, FORMAT(dia_eecc, 'dd-MM-yyyy') AS dia_eecc  FROM extracostos WHERE viaje_ot = '{viaje_ot}' ORDER BY id DESC")
     else:
         # Si no se proporciona ningún filtro, mostrar todos los registros
         if not where_conditions:
-            cursor.execute(f"SELECT * FROM extracostos WHERE ({(datetime.now()).strftime('%d-%m-%Y')} <= 30) ORDER BY id DESC")
+            fecha_actual = ((datetime.now())-timedelta(days=30)).strftime('%Y-%m-%d')
+            print (fecha_actual)
+            query = f"""SELECT *, FORMAT(dia_eecc, 'dd-MM-yyyy') as dia_eecc 
+                        FROM extracostos 
+                        WHERE dia_eecc > ? ORDER BY id DESC
+                        """
+            cursor.execute(query, fecha_actual)
         else:
             # Construir la consulta completa con los filtros
             where_clause = " AND ".join(where_conditions)
-            cursor.execute(f"SELECT * FROM extracostos WHERE {where_clause} ORDER BY id DESC")
+            cursor.execute(f"SELECT * ,FORMAT(dia_eecc, 'dd-MM-yyyy') AS dia_eecc  FROM extracostos WHERE {where_clause} ORDER BY id DESC")
 
     myresult = cursor.fetchall()
 
@@ -183,7 +195,6 @@ def actualizacionEstadoSistemas(values):
                 UPDATE extracostos
                 SET
                     estado = ?,
-                    responsable_evaluacion = ?,
                     fecha_ingreso_sitrack = ?
                 WHERE id = ?
             """
@@ -254,3 +265,63 @@ def actualizar_password_sql_server(nueva_password, id):
     else:
         print("No se pudo establecer conexión con la base de datos.")
 
+
+def maestro(minera):
+    if minera =='minera':
+        try:
+            conexion_SQLServer = connectionBD()
+            cursor = conexion_SQLServer.cursor()
+            cursor.execute (f"SELECT * FROM maestro_minera ORDER BY  minera ASC")
+            myresult = cursor.fetchall()
+            column_names = [column[0] for column in cursor.description]
+            insert_object = [dict(zip(column_names, record)) for record in myresult]
+            return insert_object
+        except Exception as e:
+            # Manejar la excepción según tus necesidades
+            print(f"Error: {e}")
+            return None
+    elif minera == 'empresa':
+        try:
+            conexion_SQLServer = connectionBD()
+            cursor = conexion_SQLServer.cursor()
+            cursor.execute (f"SELECT * FROM maestro_empresa ORDER BY  empresa ASC")
+            myresult = cursor.fetchall()
+            column_names = [column[0] for column in cursor.description]
+            insert_object = [dict(zip(column_names, record)) for record in myresult]
+            return insert_object
+        except Exception as e:
+            # Manejar la excepción según tus necesidades
+            print(f"Error: {e}")
+            return None
+
+def todos_eecc():
+    conexion_SQLServer = connectionBD()
+    cursor = conexion_SQLServer.cursor()
+    query = ("""SELECT id as ID,
+                              usuario AS Usuario,
+                              dia_eecc as 'Dia EECC',
+                            viaje_ot AS 'Viaje/OT',
+                            cliente AS Cliente,
+                            agencia AS Agencia,
+                            tipo_extra_costo AS 'Tipo Extra Costo',
+                            motivo AS Motivo, 
+                            hora_llegada AS 'Hora Llegada', 
+                            dia2 as Dia,
+                            hora_salida AS Hora_Salida,
+                            dia3 AS Dia,
+                            empresa AS Empresa,
+                            monto AS Monto,
+                            estado AS Estado,
+                            responsable_evaluacion AS 'Responsable Evaluacion',
+                            fecha_creacion AS 'Fecha Creacion',
+                            fecha_cierre AS 'Fecha Cierre',
+                            fecha_ingreso_sitrack AS 'Ingreso Sitrack'
+                              
+                    FROM extracostos 
+                    ORDER BY id DESC
+                    """)
+    cursor.execute(query)
+    myresult = cursor.fetchall()
+    column_names = [column[0] for column in cursor.description]
+    insert_object = [dict(zip(column_names, record)) for record in myresult]
+    return insert_object

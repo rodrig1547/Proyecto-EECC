@@ -10,3 +10,29 @@ deberia permitir habilitar un boton de editar, de esta forma no lo debe ingresar
 
 Tambien aparece Pendiente Aprobacion en el menu de buscar.
 
+Cuentas Cat
+
+cat1@mintral.cl
+cat2@mintral.cl
+cat3@mintral.cl
+ 
+Cuenta Ad. Contrato 
+
+contrato1@mintral.cl [ALGARROBAL, CODELCO]
+contrato2@mintral.cl [COLLAHUASI, GESTA]
+contrato3@mintral.cl [GUIÑEZING, Otra Mineras]
+
+Sistemas 
+
+cletelier@mintral.cl
+
+Control Trafico
+
+
+
+
+
+
+
+
+

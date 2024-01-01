@@ -93,7 +93,7 @@ function enviarActualizacion(estado) {
                     <tr>
                         <th class="col-1" style="width: 50px;">ID</th>
                         <th scope="col" style="width: 5%;">Usuario</th>
-                        <th scope="col" style="width: 5%;">Dia</th>                            
+                        <th scope="col" style="width: 5%;">Dia EECC</th>                            
                         <th scope="col" style="width: 4%;">Viaje/OT</th>
                         <th scope="col" style="width: 4%;">Cliente</th>
                         <th scope="col" style="width: 4%;">Agencia</th>
@@ -108,7 +108,8 @@ function enviarActualizacion(estado) {
                         <th scope="col">Monto</th>
                         <th scope="col">Estado</th>
                         <th scope="col">Respaldo</th>
-                        <th scope="col">Evaluación</th>                            
+                        <th scope="col">Evaluación</th>      
+                        <th scope="col">Fecha Creación</th>                            
                     </tr>
                 </thead>
         
@@ -117,7 +118,7 @@ function enviarActualizacion(estado) {
                         <tr style="text-align: center;">
                             <td>{{d.id}}</td>
                             <td>{{d.usuario}}</td>
-                            <td>{{d.fecha_creacion}}</td>
+                            <td>{{d.dia_eecc}}</td>
                             <td>{{d.viaje_ot}}</td>
                             <td>{{d.cliente}}</td>
                             <td>{{d.agencia}}</td>
@@ -134,6 +135,7 @@ function enviarActualizacion(estado) {
                             <td><a href="{{ url_for('download', nombre_zip=d.nombre_zip) }}" class="btn btn-success btn-sm" title="Descargar" style="font-size: 8px;">Descargar</a></td>
                             <td><a href="#" onclick="confirmarAprobar('{{ d.id }}')" class="btn btn-success btn-sm" title="Aprobar" style="font-size: 8px;">A</a>
                                 <a href="#" onclick="confirmarRechazo('{{ d.id }}')"  class="btn btn-danger btn-sm" title="Rechazar" style="font-size: 8px;">R</a></td>
+                            <td>{{d.fecha_creacion}}</td>
                                                                  
                         </tr>
 

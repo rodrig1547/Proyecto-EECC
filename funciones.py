@@ -23,30 +23,6 @@ def dataLoginSesion():
         }
     return inforLogin
 
-def dataPerfilUsuario():
-    conexion_SQLdb = connectionBD()
-    
-    if conexion_SQLdb:
-        try:
-            cursor = conexion_SQLdb.cursor()
-            idUser = session['id']            
-            querySQL = "SELECT * FROM login_python WHERE id = ?"            
-            cursor.execute(querySQL, [idUser])            
-            columns = [column[0] for column in cursor.description]            
-            datosUsuario = [dict(zip(columns, row)) for row in cursor.fetchall()][0]             
-            return datosUsuario
-        except Exception as e:
-            print(f"Error al obtener datos de usuario: {str(e)}")
-            return None
-        finally:
-            cursor.close()  # Cerrando el cursor
-            conexion_SQLdb.close()  # Cerrando la conexión a la BD
-    else:
-        print("No se pudo establecer conexión con la base de datos.")
-        return None
-
-
-
 def stringAleatorio():
     string_aleatorio = "0123456789abcdefghijklmnopqrstuvwxyz_"
     longitud         = 20

@@ -193,14 +193,14 @@ def actualizarPerfil():
                     msg = 'Perfil actualizado correctamente'
                     flash (msg, 'success')
 
-                    return render_template('public/dashboard/home_desarrollo.html', dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario())
+                    return render_template('public/dashboard/home_desarrollo.html', dataLogin=dataLoginSesion())
             else: 
                 flash('La cuenta no existe', 'danger')
                 return redirect(url_for('editProfileUsers'))
  
 
         return render_template('public/dashboard/home_desarrollo.html', msjAlert=msg, typeAlert=1,
-                               dataLogin=dataLoginSesion(), dataUser=dataPerfilUsuario())
+                               dataLogin=dataLoginSesion())
 
 
 if __name__ == "__main__":

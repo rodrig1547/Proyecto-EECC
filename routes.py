@@ -1,10 +1,12 @@
-from flask import Flask, render_template, redirect, url_for, session, request, send_from_directory, flash, jsonify
+from flask import Flask, render_template, redirect, url_for, session, request, send_from_directory, flash, jsonify, send_file
 from funciones import *  #Importando mis Funciones
 from Consultas_sql import *
 from datetime import datetime
 from forms import CATForm, historialForm, cambioPassword,loginUsuario, crearUsuario, ediotarUsuario
 import pytz #Libraria zona horaria
 import ast #transformar str to list
+import pandas as pd
+import io
 
 
 
@@ -36,13 +38,13 @@ def inicio():
         if perfil_usuario == 100:
             form = CATForm()
             id_user = session['id']
-            return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros(perfil_usuario= perfil_usuario, id_user = id_user), form = form)
+            return render_template('public/dashboard/home_CAT.html', dataLogin = dataLoginSesion(), data = mostrarRegistros(perfil_usuario= perfil_usuario, id_user = id_user), form = form)
         elif perfil_usuario == 1:
-            return (render_template('public/dashboard/home_desarrollo.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario()))
+            return (render_template('public/dashboard/home_desarrollo.html', dataLogin = dataLoginSesion()))
         elif perfil_usuario == 2:
-            return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros(perfil_usuario= perfil_usuario, cliente = ast.literal_eval(session['minera'])))
+            return render_template('public/dashboard/home_Admin.html', dataLogin = dataLoginSesion(), data = mostrarRegistros(perfil_usuario= perfil_usuario, cliente = ast.literal_eval(session['minera'])))
         elif perfil_usuario == 3:
-            return render_template('public/dashboard/home_Sistemas.html', dataLogin = dataLoginSesion(), dataUser = dataPerfilUsuario(), data = mostrarRegistros(perfil_usuario=perfil_usuario))
+            return render_template('public/dashboard/home_Sistemas.html', dataLogin = dataLoginSesion(), data = mostrarRegistros(perfil_usuario=perfil_usuario))
         elif perfil_usuario == 99:
             return redirect(url_for('historial'))
     else: 
@@ -52,16 +54,17 @@ def inicio():
 @app.route('/edit-profile', methods=['GET', 'POST'])
 def editProfile():
     form = cambioPassword(request.form)
-    if 'conectado' in session and session['tipo_user'] == 100:
-        return render_template('public/dashboard/pages/Cat/Profile_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form =form)
-    elif 'conectado' in session and session['tipo_user'] == 2:
-        return render_template('public/dashboard/pages/Ad. Contrato/Profile_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form =form)
-    elif 'conectado' in session and session['tipo_user'] == 3:
-        return render_template('public/dashboard/pages/Sistemas/Profile_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form =form)
-    elif 'conectado' in session and session['tipo_user'] == 1:
-        return render_template('public/dashboard/pages/Desarrollo/Profile_desarrollo.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form =form)
-    elif 'conectado' in session and session['tipo_user'] == 99:
-        return render_template('public/dashboard/pages/C. Trafico/Profile_CT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form =form)
+    if 'conectado' in session:
+        if session['tipo_user'] == 100:
+            return render_template('public/dashboard/pages/Cat/Profile_CAT.html', dataLogin = dataLoginSesion(), form =form)
+        elif session and session['tipo_user'] == 2:
+            return render_template('public/dashboard/pages/Ad. Contrato/Profile_AD.html', dataLogin = dataLoginSesion(), form =form)
+        elif session['tipo_user'] == 3:
+            return render_template('public/dashboard/pages/Sistemas/Profile_Sistemas.html', dataLogin = dataLoginSesion(), form =form)
+        elif session['tipo_user'] == 1:
+            return render_template('public/dashboard/pages/Desarrollo/Profile_desarrollo.html', dataLogin = dataLoginSesion(), form =form)
+        elif session['tipo_user'] == 99:
+            return render_template('public/dashboard/pages/C. Trafico/Profile_CT.html', dataLogin = dataLoginSesion(), form =form)
     return redirect(url_for('inicio'))
 
 #Ruta para que el administrador pueda modificar las cuentas a las cuales se les olvida la contraseña
@@ -69,7 +72,7 @@ def editProfile():
 def editProfileUsers():
     form = ediotarUsuario()
     if 'conectado' in session and session['tipo_user'] == 1:
-        return render_template('public/dashboard/pages/Desarrollo/Profile_users.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), form = form)
+        return render_template('public/dashboard/pages/Desarrollo/Profile_users.html', dataLogin = dataLoginSesion(), form = form)
     return redirect(url_for('inicio'))     
 
 #Ruta para observar todos los registros menos los "pendientes de aprobacion", incluso el boton de busqueda
@@ -79,45 +82,50 @@ def historial():
     form = historialForm(request.form)
 
     if form.validate_on_submit() and perfil_usuario in [2,3,99,100] :
-        fecha_inicio_value = form.fecha_inicio.data.strftime('%d-%m-%Y') if form.fecha_inicio.data is not None else None
-        fecha_fin_value = form.fecha_fin.data.strftime('%d-%m-%Y') if form.fecha_fin.data is not None else None
+        fecha_inicio_value = form.fecha_inicio.data if form.fecha_inicio.data is not None else None
+        fecha_fin_value = form.fecha_fin.data if form.fecha_fin.data is not None else None
         cliente_value = form.cliente.data
         estado_value = form.estado.data
         viaje_ot_value = form.viaje_ot.data
-        if perfil_usuario == 100:
-            return render_template('public/dashboard/pages/Cat/historial_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(fecha_inicio_value,
+        empresa_value = form.empresa.data
+        if perfil_usuario == 100:            
+            return render_template('public/dashboard/pages/Cat/historial_CAT.html', dataLogin = dataLoginSesion(), data = mostrarHistorial(fecha_inicio_value,
                                                                                                                                                                     fecha_fin_value,
                                                                                                                                                                     cliente_value,
                                                                                                                                                                     estado_value,
-                                                                                                                                                                    viaje_ot_value), form = form)
+                                                                                                                                                                    viaje_ot_value,
+                                                                                                                                                                    empresa_value), form = form)
         if perfil_usuario == 2:
-            return render_template('public/dashboard/pages/Ad. Contrato/historial_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(fecha_inicio_value,
+            return render_template('public/dashboard/pages/Ad. Contrato/historial_AD.html', dataLogin = dataLoginSesion(), data = mostrarHistorial(fecha_inicio_value,
                                                                                                                                                                        fecha_fin_value,
                                                                                                                                                                        cliente_value,
                                                                                                                                                                        estado_value,
-                                                                                                                                                                       viaje_ot_value), form = form)
+                                                                                                                                                                       viaje_ot_value, 
+                                                                                                                                                                       empresa_value), form = form)
         if perfil_usuario == 99:
-            return render_template('public/dashboard/pages/C. Trafico/historial_CT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(fecha_inicio_value,
+            return render_template('public/dashboard/pages/C. Trafico/historial_CT.html', dataLogin = dataLoginSesion(), data = mostrarHistorial(fecha_inicio_value,
                                                                                                                                                                        fecha_fin_value,
                                                                                                                                                                        cliente_value,
                                                                                                                                                                        estado_value,
-                                                                                                                                                                       viaje_ot_value), form = form)
+                                                                                                                                                                       viaje_ot_value, 
+                                                                                                                                                                       empresa_value), form = form)
         if perfil_usuario == 3:
-            return render_template('public/dashboard/pages/Sistemas/historial_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(fecha_inicio_value,
+            return render_template('public/dashboard/pages/Sistemas/historial_Sistemas.html', dataLogin = dataLoginSesion(), data = mostrarHistorial(fecha_inicio_value,
                                                                                                                                                                        fecha_fin_value,
                                                                                                                                                                        cliente_value,
                                                                                                                                                                        estado_value,
-                                                                                                                                                                       viaje_ot_value), form = form)
+                                                                                                                                                                       viaje_ot_value,
+                                                                                                                                                                       empresa_value), form = form)
 
     if 'conectado' in session and perfil_usuario in [2,3,99,100]:
         if perfil_usuario == 100:
-            return render_template('public/dashboard/pages/Cat/historial_CAT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
+            return render_template('public/dashboard/pages/Cat/historial_CAT.html', dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
         if perfil_usuario == 2:
-            return render_template('public/dashboard/pages/Ad. Contrato/historial_AD.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
+            return render_template('public/dashboard/pages/Ad. Contrato/historial_AD.html', dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
         if perfil_usuario == 99:
-            return render_template('public/dashboard/pages/C. Trafico/historial_CT.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
+            return render_template('public/dashboard/pages/C. Trafico/historial_CT.html', dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
         if perfil_usuario == 3:
-            return render_template('public/dashboard/pages/Sistemas/historial_Sistemas.html', dataUser = dataPerfilUsuario(), dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
+            return render_template('public/dashboard/pages/Sistemas/historial_Sistemas.html', dataLogin = dataLoginSesion(), data = mostrarHistorial(), form = form)
             
 #Ruta para agregar un extracosto para el perfil de CAT
 @app.route('/add-eecc', methods=['GET','POST'])
@@ -128,10 +136,12 @@ def addUser():
         file     = request.files.get('nombre_zip') #recibiendo el archivo
         nuevoNombreFile = recibeZip(file) #Llamado la funcion que procesa la imagen
         data = form.data
-        
+        #data['dia_eecc'] = datetime.strptime(request.form['dia_eecc'], '%Y-%m-%d').strftime('%d-%m-%Y')
         data['usuario'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido'] 
         data['nombre_zip'] = nuevoNombreFile
         data['estado'] = 'Pendiente Aprobacion'
+        data['hora_llegada'] = (form.hora_llegada.data).strftime('%H:%M') if form.hora_llegada.data!=None else ''  
+        data['hora_salida'] = (form.hora_salida.data).strftime('%H:%M') if form.hora_llegada.data!=None else ''
         data['fecha_creacion'] = datetime.now(chile_tz).strftime('%d-%m-%Y, %H:%M')
         data['motivo'] = data['motivo_ajuste_tarifa'] + data['motivo_redestinacion'] + data['motivo_sobre_estadia'] + data['motivo_falso_flete'] + data['motivo_posicionamiento_vacio']
         data['fecha_ingreso_sitrack'] = ''
@@ -152,7 +162,7 @@ def addUser():
         return redirect(url_for('inicio'))
     
     else:
-        print(form.errors)
+        flash(form.errors, 'danger')
 
     return redirect(url_for('inicio'))
   
@@ -204,7 +214,6 @@ def actualizacionSistemas(id, estado):
     if 'conectado' in session and (session['tipo_user'] == 3):
         data = {}
         data['estado'] = estado
-        data['responsable_evaluacion'] = dataLoginSesion()['nombre'] +' ' + dataLoginSesion()['apellido']  
         data['fecha_ingreso_sitrack'] = datetime.now(chile_tz).strftime('%d-%m-%Y, %H:%M') 
         data['id'] = id
         values = list(data.values())
@@ -218,7 +227,39 @@ def AdministrarUsuarios():
         form = crearUsuario()
         print ('Ingreso a  AdministrarUsuarios 1' )
         return render_template('public/dashboard/pages/Desarrollo/Crear_Usuario.html', dataLogin = dataLoginSesion(), form = form) 
-     
+    
+
+@app.route('/descargar_excel')
+def descargar_excel():
+    if 'conectado' in session:
+        if session['tipo_user'] == 3:
+            data = mostrarRegistros(perfil_usuario= session['tipo_user'])
+            df = pd.DataFrame(data)
+             # Guardar DataFrame en un objeto BytesIO (similar a un archivo en memoria)
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                df.to_excel(writer, index=False)
+
+            # Volver al inicio del stream
+            output.seek(0)
+
+            # Enviar archivo como respuesta
+            return send_file(output, download_name="datos.xlsx", as_attachment=True)
+        
+        if session['tipo_user'] in [1,2,3,99,100]:
+            data = todos_eecc()
+            df = pd.DataFrame(data)
+             # Guardar DataFrame en un objeto BytesIO (similar a un archivo en memoria)
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                df.to_excel(writer, index=False)
+
+            # Volver al inicio del stream
+            output.seek(0)
+
+            # Enviar archivo como respuesta
+            return send_file(output, download_name="datos.xlsx", as_attachment=True)
+
 # Cerrar session del usuario
 @app.route('/logout')
 def logout():
